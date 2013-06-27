@@ -65,11 +65,14 @@ end
 Dist2Scr            =   720;            % (mm)
 HoriScrDist         =   400;            % (mm)
 ScrHz               =   60;             % framerate of screen (frames/second)
-%ScrRes              =   [1280 800];     % Resolution of screen [hori vert]  [1024 768]
-ScrRes              =   [1024 768];     % Resolution of screen [hori vert]  [1024 768]
 ScrNum              =   0;              % SS: changed from 2 due to InitializeScreens crash
 BGCol               =   [0 0 0];        % backgroundcolor
 TextColors          =   {[255 255 255]};
+
+%ScrRes              =   [1280 800];     % Resolution of screen [hori vert]  [1024 768]
+%ScrRes              =   [1024 768];     % Resolution of screen [hori vert]  [1024 768]
+ResInfo 	    = Screen('Resolution',0);
+ScrRes		    = [ResInfo.width ResInfo.height];
 
 %% Experiment Parameters
 
@@ -92,7 +95,7 @@ blockNums                   = linspace(1,nMaxTrials+1,(nMaxTrials/nTrials)+1);
 
 %% More parameters
 
-OutComePlayers               = [1 0 0 0 0 0; 
+OutComePlayers               = [1 1 -1*ones(1,4); 
                                 0 0 0 0 0 0];
 
 % equalized for luminance at screen border (no projector bias)     
@@ -189,6 +192,7 @@ end
 
 Screen('Preference', 'SkipSyncTests', 1);
 [window, windowRect] = InitializeScreens(ScrNum,BGCol,1);
+%% IF ABOVE LINE PRODUCES ERROR, REMEMBER TO addpath('MatlabFunctions')!
 
 %% Initialization
 
@@ -239,11 +243,13 @@ DrawMirrored(window, woff,woff, ScrRes);
 Screen('Flip', window);
 WaitForKeyPress({'SPACE'});
 
-winfb = Screen('OpenOffscreenWindow', window, [0 0 0 0], [0 0 TargetSize TargetSize]);
-Screen('FillRect', winfb, [255 255 255], [TargetSize/3 0 2*TargetSize/3 TargetSize/2]);
-Screen('FillPoly', winfb, [255 255 255], [0 TargetSize/2; TargetSize TargetSize/2; TargetSize/2 TargetSize], 1);
-rect_arrowshaft = [0 0 TargetSize TargetSize/2];
-rect_arrowhead = [0 TargetSize/2 TargetSize TargetSize];
+% predraw arrow parts
+fbsc = 1.5;   %% target feedback size (sidelength) scale factor. 1 = TargetSize
+winfb = Screen('OpenOffscreenWindow', window, [0 0 0 0], [0 0 fbsc*TargetSize fbsc*TargetSize]);
+Screen('FillRect', winfb, [255 255 255], [fbsc*TargetSize/3 0 fbsc*2*TargetSize/3 fbsc*TargetSize/2]);
+Screen('FillPoly', winfb, [255 255 255], [0 fbsc*TargetSize/2; fbsc*TargetSize fbsc*TargetSize/2; fbsc*TargetSize/2 fbsc*TargetSize], 1);
+rect_arrowshaft = [0 0 fbsc*TargetSize fbsc*TargetSize/2];
+rect_arrowhead = [0 fbsc*TargetSize/2 fbsc*TargetSize fbsc*TargetSize];
 
 fbArrowRect = [];
 fbArrowRect(1,:,1) = rect_arrowhead;
@@ -344,7 +350,7 @@ for TrlNum = startTrialNum:endTrialNum
         tracker(0,RecordHz);
     end
     
-    rng('shuffle');
+%    rng('shuffle');
     for i = 1:MaxTargetsOnScreen
          TrialList(i,:)     = [i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets))];
          
@@ -356,7 +362,7 @@ for TrlNum = startTrialNum:endTrialNum
          MoleTypeList(i,:)  = tempList(1:nTargetOnsets);
     end
     
-    rng('shuffle');
+%    rng('shuffle');
     nHistoryTargetOverlapCheck = 4; % number of iterations back into history to check for overlapping targets
     count = 0;
     HalfScrRes = [ScrRes(1)/2 ScrRes(2)];  % half-screens split along horizontal side
@@ -483,8 +489,8 @@ for TrlNum = startTrialNum:endTrialNum
                     targetFeedback = [targetFeedback(:,1:i-1) targetFeedback(:,i+1:end)];
                 elseif ( getSecs-targetFeedback(3,i) <= FeedBackDuration & targetFeedback(3,i)~= 0 ) % show feedback
                     
-                    targetArea = [targetFeedback(1,i)-TargetSize/2 targetFeedback(2,i) targetFeedback(1,i)+TargetSize/2 targetFeedback(2,i)+TargetSize/2; 
-                                  targetFeedback(1,i)-TargetSize/2 targetFeedback(2,i)-TargetSize/2 targetFeedback(1,i)+TargetSize/2 targetFeedback(2,i)];
+                    targetArea = [targetFeedback(1,i)-fbsc*TargetSize/2 targetFeedback(2,i) targetFeedback(1,i)+fbsc*TargetSize/2 targetFeedback(2,i)+fbsc*TargetSize/2; 
+                                  targetFeedback(1,i)-fbsc*TargetSize/2 targetFeedback(2,i)-fbsc*TargetSize/2 targetFeedback(1,i)+fbsc*TargetSize/2 targetFeedback(2,i)];
                     
                     % Select FeedbackArrow parts
                     P1rect = fbArrowRect(targetFeedback(4,i),:,MoleTypeList(targetFeedback(6,i),targetFeedback(5,i)));
@@ -529,18 +535,22 @@ for TrlNum = startTrialNum:endTrialNum
             %%%%%%%%%%%%%%%%%%%
             
 	    % Split Board: ensure players stay on their own sides
-	    if ( xPos1 > HalfScrRes(1) )    % PlayerLeft has strayed across the line; reset to origin
+	    if ( xPos1 < HalfScrRes(1) )    % PlayerLeft has strayed across the line; reset to origin
+            Screen('FrameOval', window, [0 0 255], [xPos1-HitSize/2 yPos1-HitSize/2 xPos1+HitSize/2 yPos1+HitSize/2] );
 	        xPos1 = 0;
-		yPos1 = 0;
+            	yPos1 = 0;
 	    end
-	    if ( xPos2 < HalfScrRes(1) )    % PlayerRight has strayed across the line; reset to origin
-	        xPos2 = 0;
-		yPos2 = 0;
+	    if ( xPos2 > HalfScrRes(1) )    % PlayerRight has strayed across the line; reset to origin
+            Screen('FrameOval', window, [255 0 0], [xPos2-HitSize/2 yPos2-HitSize/2 xPos2+HitSize/2 yPos2+HitSize/2] );
+                  xPos2 = 0;
+                  yPos2 = 0;
 	    end
 
 	    % Split Board: now remap PlayerRight to PlayerLeft coordinates
-	    xPos2 = ScrRes(1)-xPos2;
-	    yPos2 = ScrRes(2)-yPos2;
+	    xPos1 = ScrRes(1)-xPos1;
+	    yPos1 = ScrRes(2)-yPos1;
+        DrawText(window,{num2str(xPos1)},{[50 50 255]},20,45,0,0); %
+        DrawText(window,{num2str(xPos2)},{[255 50 50]},20,145,0,0); %
 
             % check whether target is hit
             for i = 1:MaxTargetsOnScreen
