@@ -65,10 +65,14 @@ end
 Dist2Scr            =   720;            % (mm)
 HoriScrDist         =   400;            % (mm)
 ScrHz               =   60;             % framerate of screen (frames/second)
-ScrRes              =   [1024 768];     % Resolution of screen [hori vert];
 ScrNum              =   0;              % SS: changed from 2 due to InitializeScreens crash
 BGCol               =   [0 0 0];        % backgroundcolor
 TextColors          =   {[255 255 255]};
+
+%ScrRes              =   [1280 800];     % Resolution of screen [hori vert]  [1024 768]
+%ScrRes              =   [1024 768];     % Resolution of screen [hori vert]  [1024 768]
+ResInfo	     = Screen('Resolution',0);
+ScrRes		    = [ResInfo.width ResInfo.height];
 
 %% Experiment Parameters
 
@@ -91,8 +95,8 @@ blockNums                   = linspace(1,nMaxTrials+1,(nMaxTrials/nTrials)+1);
 
 %% More parameters
 
-OutComePlayers               = [1 0 -1 0 1 -1; 
-                                0 -1 0 1 1 -1];
+OutComePlayers               = [1 1 -1*ones(1,4); 
+                                0 0 0 0 0 0];
 
 % equalized for luminance at screen border (no projector bias)     
 TargetColors  = [ 0   255     0;,... % green   22.3, .186/.670
@@ -188,10 +192,11 @@ end
 
 Screen('Preference', 'SkipSyncTests', 1);
 [window, windowRect] = InitializeScreens(ScrNum,BGCol,1);
+%% IF ABOVE LINE PRODUCES ERROR, REMEMBER TO addpath('MatlabFunctions')!
 
 %% Initialization
 
-InitializeScreenPref(ScrNum,ExpMode,ScrHz,ScrRes);
+InitializeScreenPref(window,ExpMode,ScrHz,ScrRes);
 InitializeTextPref(window,10,'Helvetica',1);
 
 % screen linearization
@@ -329,7 +334,7 @@ for TrlNum = startTrialNum:endTrialNum
         tracker(0,RecordHz);
     end
     
-    rng('shuffle');
+%    rng('shuffle');
     for i = 1:MaxTargetsOnScreen
          TrialList(i,:)     = [i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets))];
          
@@ -341,7 +346,7 @@ for TrlNum = startTrialNum:endTrialNum
          MoleTypeList(i,:)  = tempList(1:nTargetOnsets);
     end
     
-    rng('shuffle');
+%    rng('shuffle');
     nHistoryTargetOverlapCheck = 4; % number of iterations back into history to check for overlapping targets
     count = 0;
     for j = 1:nTargetOnsets
