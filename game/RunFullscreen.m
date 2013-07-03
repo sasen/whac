@@ -199,8 +199,8 @@ woff = Screen('OpenOffScreenWindow',window,[0 0 0], [ScrRes(1)/2 0 ScrRes(1) Scr
 InitializeTextPref(woff,16,'Helvetica',1);
 
 %%%%%%%%%%% Welcome/Instructions
-tSize=Screen('TextSize',woff,30);
-DrawText(woff,{'WHAC-A-MOLE!'},TextColors,20,20,0,0);
+tSize=Screen('TextSize',woff,20);
+DrawText(woff,{'WELCOME TO WHAC-A-MOLE!'},TextColors,20,20,0,0);
 Screen('TextSize',woff,tSize);
 
 DrawText(woff,{'POINTS'},TextColors,20,100,0);
@@ -233,6 +233,8 @@ DrawText(woff,{'POINT LOST'},TextColors,20,bottomY,0,0);
 Screen('DrawTexture',woff,winfb,rect_arrowshaft,[iconLEdge bottomY-tgtHalf iconREdge bottomY]);
 Screen('DrawTexture',woff,winfb,rect_hammerhead,[iconLEdge bottomY iconREdge bottomY+tgtHalf]);
 Screen('DrawLine',woff,[255 255 255], 20, bottomY+tgtHalf+2, 250, bottomY+tgtHalf+2);
+
+
 
 Screen('FillRect', window, BGCol); % draw background
 DrawMirrored(window, woff,woff, ScrRes);  % draw instructions on both sides
@@ -375,7 +377,6 @@ for TrlNum = startTrialNum:endTrialNum
             '',...
             };
 
-	Screen('TextSize',woff,20);
         Screen('FillRect', woff, BGCol); % draw background        
         DrawText(woff,Text,TextColors,20,ScrRes(2)/4,0,0);
         DrawText(woff,{num2str(i)},TextColors,50,ScrRes(2)/3,0);
@@ -567,36 +568,42 @@ for TrlNum = startTrialNum:endTrialNum
     Screen('FillRect', window, BGCol); % draw background
     Screen('FillRect', woff, [0 0 0]); % black bg for feedback pane
     
-    if ( ScorePlayers(PlayerLeftIdx,TrlNum) > ScorePlayers(PlayerRightIdx,TrlNum) )
+    PlayerLeftScore = ScorePlayers(PlayerLeftIdx,TrlNum);
+    PlayerRightScore = ScorePlayers(PlayerRightIdx,TrlNum);
+        
+    if (PlayerLeftScore > PlayerRightScore )
         DrawText(window,{'YOU WIN!'},{[0 255 0]},0.5*ScrRes(1)/6,ScrRes(2)/6,0);
-        DrawText(woff,{'YOU LOSE!'},{[255 0 0]},0.5*ScrRes(1)/6,ScrRes(2)/6,0);
-        DrawText(window,{['SCORE: ' num2str(ScorePlayers(PlayerLeftIdx,TrlNum))]},{[0 255 0]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
-        DrawText(woff,{['SCORE: ' num2str(ScorePlayers(PlayerRightIdx,TrlNum))]},{[255 0 0]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
-        
+        DrawText(woff,{'YOU LOSE!'},{[255 0 0]},0.5*ScrRes(1)/6,ScrRes(2)/6,0);        
+        DrawText(window,{['YOUR SCORE IS  ' num2str(PlayerLeftScore)]},{[0 255 0]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
+        DrawText(window,{['YOUR OPPONENT GOT  ' num2str(PlayerRightScore)]},{[255 0 0]},0.5*ScrRes(1)/6,2*ScrRes(2)/3,0);
+        DrawText(woff,{['YOUR SCORE IS  ' num2str(PlayerRightScore)]},{[255 0 0]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
+        DrawText(woff,{['YOUR OPPONENT GOT  ' num2str(PlayerLeftScore)]},{[0 255 0]},0.5*ScrRes(1)/6,2*ScrRes(2)/3,0);
         MoneyPlayers(PlayerLeftIdx) = MoneyPlayers(PlayerLeftIdx)+0.8;
-    elseif ( ScorePlayers(PlayerLeftIdx,TrlNum) < ScorePlayers(PlayerRightIdx,TrlNum) )
+    elseif ( PlayerLeftScore < PlayerRightScore )
         DrawText(window,{'YOU LOSE!'},{[255 0 0]},0.5*ScrRes(1)/6,ScrRes(2)/6,0);
-        DrawText(woff,{'YOU WIN!'},{[0 255 0]},0.5*ScrRes(1)/6,ScrRes(2)/6,0);
-        DrawText(window,{['SCORE: ' num2str(ScorePlayers(PlayerLeftIdx,TrlNum))]},{[255 0 0]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
-        DrawText(woff,{['SCORE: ' num2str(ScorePlayers(PlayerRightIdx,TrlNum))]},{[0 255 0]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
-        
+        DrawText(woff,{'YOU WIN!'},{[0 255 0]},0.5*ScrRes(1)/6,ScrRes(2)/6,0);      
+ 	DrawText(window,{['YOUR SCORE IS  ' num2str(PlayerLeftScore)]},{[255 0 0]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
+       	DrawText(window,{['YOUR OPPONENT GOT  ' num2str(PlayerRightScore)]},{[0 255 0]},0.5*ScrRes(1)/6,2*ScrRes(2)/3,0);
+      	DrawText(woff,{['YOUR SCORE IS  ' num2str(PlayerRightScore)]},{[0 255 0]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
+       	DrawText(woff,{['YOUR OPPONENT GOT  ' num2str(PlayerLeftScore)]},{[255 0 0]},0.5*ScrRes(1)/6,2*ScrRes(2)/3,0);
         MoneyPlayers(PlayerRightIdx) = MoneyPlayers(PlayerRightIdx)+0.8;
     else % draw
         DrawText(window,{'DRAW!'},{[0 0 255]},0.5*ScrRes(1)/6,ScrRes(2)/6,0);
-        DrawText(woff,{'DRAW!'},{[0 0 255]},0.5*ScrRes(1)/6,ScrRes(2)/6,0);
-        DrawText(window,{['SCORE: ' num2str(ScorePlayers(PlayerLeftIdx,TrlNum))]},{[0 0 255]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
-        DrawText(woff,{['SCORE: ' num2str(ScorePlayers(PlayerRightIdx,TrlNum))]},{[0 0 255]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
-        
+        DrawText(woff,{'DRAW!'},{[0 0 255]},0.5*ScrRes(1)/6,ScrRes(2)/6,0);       
+        DrawText(window,{['YOUR SCORE IS  ' num2str(PlayerLeftScore)]},{[0 0 255]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
+        DrawText(window,{['YOUR OPPONENT GOT  ' num2str(PlayerRightScore)]},{[0 0 255]},0.5*ScrRes(1)/6,2*ScrRes(2)/3,0);
+        DrawText(woff,{['YOUR SCORE IS  ' num2str(PlayerRightScore)]},{[0 0 255]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
+        DrawText(woff,{['YOUR OPPONENT GOT  ' num2str(PlayerLeftScore)]},{[0 0 255]},0.5*ScrRes(1)/6,2*ScrRes(2)/3,0);
         MoneyPlayers(PlayerLeftIdx) = MoneyPlayers(PlayerLeftIdx)+0.4;
         MoneyPlayers(PlayerRightIdx) = MoneyPlayers(PlayerRightIdx)+0.4;
     end
     
-    DrawText(window,{['BALANCE: ' num2str(MoneyPlayers(PlayerLeftIdx))]},{[255 255 255]},round(0.5*ScrRes(1)/6),round(ScrRes(2)/1.5),0);
-    DrawText(woff,{['BALANCE: ' num2str(MoneyPlayers(PlayerRightIdx))]},{[255 255 255]},round(0.5*ScrRes(1)/6),round(ScrRes(2)/1.5),0);
+%    DrawText(window,{['BALANCE: ' num2str(MoneyPlayers(PlayerLeftIdx))]},{[255 255 255]},round(0.5*ScrRes(1)/6),round(ScrRes(2)/1.5),0);
+%    DrawText(woff,{['BALANCE: ' num2str(MoneyPlayers(PlayerRightIdx))]},{[255 255 255]},round(0.5*ScrRes(1)/6),round(ScrRes(2)/1.5),0);
     
     
     
-    %%%%%%%%%%%%%%%%%%%%% SAVE DATA
+    %%%%%%%%%%%%%%%%%%%%% SAVE DATA 
     save(['' ppname '_t' num2str(TrlNum) '_e' num2str(ExpNum),'.mat']); % SAVE DATA
     %%%%%%%%%%%%%%%%%%%%%
     
@@ -604,7 +611,7 @@ for TrlNum = startTrialNum:endTrialNum
     
     AreaOfInterest = [20 ScrRes(2)-50 ScrRes(1)/2-20 ScrRes(2)-10];
     screen('FrameRect', window, [255 255 255], AreaOfInterest);
-    DrawText(window,{'Press here to start the next game!'},TextColors,AreaOfInterest(1)+50,AreaOfInterest(2)+10,0,0);
+    DrawText(window,{' NEXT GAME '},TextColors,AreaOfInterest(1)+50,AreaOfInterest(2)+10,0,0);
     
     Screen('DrawTexture', window, woff, [], [ScrRes(1)/2 0 ScrRes(1) ScrRes(2)], 180);
 
