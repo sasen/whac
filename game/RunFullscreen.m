@@ -38,7 +38,7 @@ KbName('UnifyKeyNames');
 
 nMaxTrials                  = 30;           % number of trials per experiment.
 nTrials                     = 10;           % number of trials per block. To prevent tracker crashes, this should be small.
-TrialLength                 = 40;           % length of a game [s]
+TrialLength                 = 30;           % length of a game [s]
 MaxTargetsOnScreen          = 8;            % maximum number of targets presented on screen simulteanously
 TargetIntervalTimeRange     = [0 1500];     % time range of interval between targets [ms]
 TargetPresTime              = 1250;         % time a target will stay on screen [ms]
@@ -94,8 +94,10 @@ calcorners(:,:,3) = [9.2613    9.2640    9.0308
                     9.8692    9.7699    9.3148];
 
 fitval = [];
-fitval(1,:) = polyfit(nanmean(calcorners(:,:,1)),nanmean(calcorners(:,:,2)),1);
-fitval(2,:) = polyfit(nanmean(calcorners(:,:,2),2),nanmean(calcorners(:,:,1),2),1);
+% fitval(1,:) = polyfit(nanmean(calcorners(:,:,1)),nanmean(calcorners(:,:,2)),1);
+% fitval(2,:) = polyfit(nanmean(calcorners(:,:,2),2),nanmean(calcorners(:,:,1),2),1);
+fitval(1,:) = (regress((nanmean(calcorners(:,:,2)))',[(nanmean(calcorners(:,:,1)))',[1;1;1]]))';
+fitval(2,:) = (regress(nanmean(calcorners(:,:,1),2),[nanmean(calcorners(:,:,2),2),[1;1;1]]))';
 
 maxZ = 10;
  
@@ -279,9 +281,9 @@ if ( startTrialNum > 1 )
     ScorePlayers(:,startTrialNum:end)  = 0;
 end
 
-if ( ExpMode > 0 )
-    data = tracker(5,RecordHz);
-end
+% if ( ExpMode > 0 )
+%     data = tracker(5,RecordHz);
+% end
 
 if ( sum(startTrialNum == blockNums)>0 )
     endTrialNum = startTrialNum+nTrials-1;
@@ -385,9 +387,9 @@ for TrlNum = startTrialNum:endTrialNum
         WaitSecs(0.5);
     end
         
-    if ( ExpMode > 0 )
-        data = tracker(5,RecordHz);
-    end
+%     if ( ExpMode > 0 )
+%         data = tracker(5,RecordHz);
+%     end
             
 %     disp(['Trial starts: ' num2str(TrlNum)]);
     
@@ -697,8 +699,8 @@ Screen CloseAll;
 
 clc;
 
-disp(['Money Player 1: ' num2str(MoneyPlayers(1))])
-disp(['Money Player 2: ' num2str(MoneyPlayers(2))])
+% disp(['Money Player 1: ' num2str(MoneyPlayers(1))])
+% disp(['Money Player 2: ' num2str(MoneyPlayers(2))])
 
 if TrlNum<nMaxTrials
     disp(['Next trial should be: ' num2str(endTrialNum+1)])
