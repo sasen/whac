@@ -103,6 +103,7 @@ maxZ = 10;
  
 %% Input
 
+dirname = ['Results/RunFullscreen/'];
 if ExpMode > 0
     ppname1 = input('Initials Player 1:','s');
     ppname2 = input('Initials Player 2:','s');
@@ -115,7 +116,7 @@ if ExpMode > 0
         disp('PLAYER 2 should stand right.');
     end
     
-    if ( startTrialNum == 1 & exist(['' ppname1 '_' ppname2 '_t1_e1.mat'])>0 )
+    if ( startTrialNum == 1 & exist([dirname ppname1 '_' ppname2 '_t1_e1.mat'])>0 )
         disp('INITIALS ALREADY EXIST');
         error('STOP');
         return;
@@ -268,7 +269,7 @@ MoneyPlayers     = [0 0];
 PlayerContinues  = zeros(1,nMaxTrials); % this variable checks who presses the continue button, 1 = left, 2 = right
 
 if ( startTrialNum > 1 )
-    MatData = load(['' ppname '_t' num2str(startTrialNum-1) '_e' num2str(ExpNum)]); % LOAD DATA BEFORE CRASH
+    MatData = load([dirname ppname '_t' num2str(startTrialNum-1) '_e' num2str(ExpNum)]); % LOAD DATA BEFORE CRASH
 
     ScorePlayers     = MatData.ScorePlayers;
     MoneyPlayers     = MatData.MoneyPlayers;
@@ -556,14 +557,14 @@ for TrlNum = startTrialNum:endTrialNum
         
         % show updated screen
         vbl = Screen('Flip', window, vbl+0.5*(1/ScrHz), [], 1); 
-    end
+    end  %%% timepoints loop (for M timepoints within a trial)
 
     Screen('FillRect', window, BGCol); % draw background
     Screen('Flip', window);
     
     if ( ExpMode > 0 )
         tracker(0,RecordHz);
-        WaitSecs(1);
+%        WaitSecs(1);
     end
     
     % instruction
@@ -606,31 +607,31 @@ for TrlNum = startTrialNum:endTrialNum
     
     
     %%%%%%%%%%%%%%%%%%%%% SAVE DATA 
-    save(['' ppname '_t' num2str(TrlNum) '_e' num2str(ExpNum),'.mat']); % SAVE DATA
+    save([dirname ppname '_t' num2str(TrlNum) '_e' num2str(ExpNum),'.mat']); % SAVE DATA
     %%%%%%%%%%%%%%%%%%%%%
     
     
     
-    AreaOfInterest = [20 ScrRes(2)-50 ScrRes(1)/2-20 ScrRes(2)-10];
-    Screen('FrameRect', window, [255 255 255], AreaOfInterest);
-    DrawText(window,{' NEXT GAME '},TextColors,AreaOfInterest(1)+50,AreaOfInterest(2)+10,0,0);
-    
+%     disp('Participants read score results');        
     Screen('DrawTexture', window, woff, [], [ScrRes(1)/2 0 ScrRes(1) ScrRes(2)], 180);
-
     Screen('Flip', window);
 
-%     disp('Participants read score results');
-    
     if ( ExpMode > 0 )
-        WaitSecs(1);
-        data = tracker(5,RecordHz);
+%        WaitSecs(1);
+        data = tracker(5,RecordHz);  % throw data away
         WaitSecs(1);
     end
     
+    %% "next game" button created
+    AreaOfInterest = [20 ScrRes(2)-50 ScrRes(1)/2-20 ScrRes(2)-10];
+    Screen('FrameRect', window, [255 255 255], AreaOfInterest);
+    DrawText(window,{' NEXT GAME '},TextColors,AreaOfInterest(1)+50,AreaOfInterest(2)+10,0,0);
+    Screen('Flip', window);
+        
     if ( ExpMode > 0 )
         continueHit = 0;
         while continueHit==0
-            data = tracker(5,RecordHz);
+            data = tracker(5,RecordHz); % check for "next" button tap
             WaitSecs(1/RecordHz);
             
             [xPos1, yPos1, zPos1, xPos2, yPos2, zPos2] = TransformTrackerData(data,calcorners,ScrRes,fitval);
@@ -642,16 +643,16 @@ for TrlNum = startTrialNum:endTrialNum
                 continueHit = 1;
             end
         end
+        tracker(0,RecordHz);
     else
         WaitForKeyPress({'SPACE'});
-    end
-    
+    end    
     Screen('FillRect', window, BGCol); % draw background
-    Screen('Flip', window);
-    
-    
-end
+    DrawText(window,{'LOADING'},TextColors,AreaOfInterest(1)+50,AreaOfInterest(2)+10,0,0);
+    Screen('Flip', window);        
+end  %%%%%% trial loop (for N trials)
 
+%%% end of the block of games, or end of the expt
 if ( ExpMode > 0 )
     tracker(0,RecordHz);
 end
@@ -684,8 +685,6 @@ end
 
 Screen('DrawTexture', window, woff, [], [ScrRes(1)/2 0 ScrRes(1) ScrRes(2)], 180);
 Screen('Flip', window);
-
-
 WaitSecs(5);
 Screen('FillRect', window, BGCol); % draw background
 Screen('Flip', window);
@@ -693,6 +692,7 @@ Screen('Flip', window);
 ShowCursor('Arrow');
 ListenChar(0);
 Screen CloseAll;
+ShowHideWinTaskbarMex(1);
 
 % disp('recorded at:');
 % disp([num2str((sum(isfinite(TrackList{1}(1,:)))/9600)*240) 'Hz']) % for long 40s trials
