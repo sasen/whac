@@ -207,7 +207,7 @@ DrawText(woff,{'WELCOME TO WHAC-A-MOLE!'},TextColors,20,20,0,0);
 Screen('TextSize',woff,tSize);
 
 DrawText(woff,{'POINTS'},TextColors,20,100,0);
-DrawText(woff,{'MOLE TYPE'},TextColors,150,100,0);
+DrawText(woff,{'MOLE TYPE'},TextColors,125,100,0);
 
 PointColor = [255 0 0; 128 128 128; 0 255 0];
 tgtHalf = TargetSize/2;
@@ -236,7 +236,7 @@ DrawText(woff,{'POINT LOST'},TextColors,20,bottomY,0,0);
 Screen('DrawTexture',woff,winfb,rect_arrowshaft,[iconLEdge bottomY-tgtHalf iconREdge bottomY]);
 Screen('DrawTexture',woff,winfb,rect_hammerhead,[iconLEdge bottomY iconREdge bottomY+tgtHalf]);
 Screen('DrawLine',woff,[255 255 255], 20, bottomY+tgtHalf+2, 250, bottomY+tgtHalf+2);
-
+DrawText(woff,{'spacebar to start'},{[127 127 127]},75,ScrRes(2)-75,0,0);
 
 
 Screen('FillRect', window, BGCol); % draw background
@@ -326,9 +326,9 @@ for TrlNum = startTrialNum:endTrialNum
     
     TargetCoverageMap   = zeros(ScrRes(2),ScrRes(1));
     
-    if ( ExpMode > 0 )
-        tracker(0,RecordHz);
-    end
+%     if ( ExpMode > 0 )
+%         tracker(0,RecordHz);
+%     end
     
     rng('shuffle');
     for i = 1:MaxTargetsOnScreen
@@ -394,7 +394,7 @@ for TrlNum = startTrialNum:endTrialNum
             
 %     disp(['Trial starts: ' num2str(TrlNum)]);
     
-%% start trial
+    %% start trial
 
     if ( ExpMode > 0 )
         data = tracker(5,RecordHz);
@@ -567,8 +567,6 @@ for TrlNum = startTrialNum:endTrialNum
 %        WaitSecs(1);
     end
     
-    % instruction
-    Screen('FillRect', window, BGCol); % draw background
     Screen('FillRect', woff, [0 0 0]); % black bg for feedback pane
     
     PlayerLeftScore = ScorePlayers(PlayerLeftIdx,TrlNum);
@@ -619,7 +617,7 @@ for TrlNum = startTrialNum:endTrialNum
     if ( ExpMode > 0 )
 %        WaitSecs(1);
         data = tracker(5,RecordHz);  % throw data away
-        WaitSecs(1);
+%        WaitSecs(1);
     end
     
     %% "next game" button created
@@ -643,7 +641,7 @@ for TrlNum = startTrialNum:endTrialNum
                 continueHit = 1;
             end
         end
-        tracker(0,RecordHz);
+        % tracker(0,RecordHz);
     else
         WaitForKeyPress({'SPACE'});
     end    
