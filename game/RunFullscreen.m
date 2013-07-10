@@ -139,7 +139,7 @@ else
     calibration = 0;
     
     ppname = [ppname1 '_' ppname2];
-    Priority(1);
+    Priority(1); %Why is this a different priority level? LOOK HERE
 end
 
 %% re-calibrate tracker
@@ -151,25 +151,19 @@ end
 
 %% open screens
 
-Screen('Preference', 'SkipSyncTests', 1);
+%Screen('Preference', 'SkipSyncTests', 1);
 [window, windowRect] = InitializeScreens(ScrNum,BGCol,1);
 %% IF ABOVE LINE PRODUCES ERROR, REMEMBER TO addpath('MatlabFunctions')!
 
 %% Initialization
 
-InitializeScreenPref(window,ExpMode,ScrHz,ScrRes);
+%InitializeScreenPref(window,ExpMode,ScrHz,ScrRes); % too cavalier
 InitializeTextPref(window,16,'Helvetica',1);
 
-% screen linearization
-% cd MonitorCalibration
-%     LumVals = load('wet3.mat');
-% cd ..
-
-% [newClutTable, oldClutTable] = CorrectClut(ScrNum, fliplr([LumVals.wet3.c_R_cdm2; LumVals.wet3.c_G_cdm2; LumVals.wet3.c_B_cdm2]), fliplr(LumVals.wet3.ind), 1);
 [newClutTable, oldClutTable] = CorrectClut(ScrNum);
 
 if ExpMode > 0
-    RemoveListening; % no keyboard input on command line, and remove mouse arrow
+%    RemoveListening; %PsychJava fail: window loses focus, MatLab segfaults
     HideCursor;
 end
 
@@ -401,6 +395,7 @@ for TrlNum = startTrialNum:endTrialNum
     else
         data = ones(5,2);
     end
+    trackerReadNow = GetSecs;
     
     PlayerLeftIdx   = (SwitchSides/2)+1.5; % NOTE THAT PLAYER LEFT DOES NOT HAVE TO BE PLAYER 1 (only at the beginning and after each 10 trials)
     PlayerRightIdx  = mod((SwitchSides/2)+1.5,2)+1;
@@ -474,12 +469,27 @@ for TrlNum = startTrialNum:endTrialNum
                     Screen('DrawTexture', window, winfb, P2rect, targetArea(2,:),0+fbAngle);
                 end
             end
-                
+                        
             if ( ExpMode > 0 )
                 data = tracker(5,RecordHz);
+%                 [data, cols, bytes_read] = ReadPnoRTAllML_ver4(code);
+%                 for i = 1:2 % check for correctness of data
+%                     for j = 1:5
+%                         checkdata((i-1)*5+j) = ~isnumeric(data(j,i));
+%                     end
+%                 end
+%                 checkdata(11) = data(2,1)<=0;
+%                 checkdata(12) = data(2,2)<=0;
+%                 if( bytes_read ~= 48 | sum(checkdata)>0 )
+%                     data = NaN(5,2);
+%                 end
             else
                 data = ones(5,2);
             end
+%             WaitSecs('UntilTime', trackerReadNow+1/RecordHz);
+            trackerReadNow = GetSecs;
+
+            
             [xPos1, yPos1, zPos1, xPos2, yPos2, zPos2] = TransformTrackerData(data,calcorners,ScrRes,fitval);
 
             TimeStampLeft   = round(data(2,1)-TimeStampTrackerLeft);
@@ -490,14 +500,14 @@ for TrlNum = startTrialNum:endTrialNum
 
 %             %%%%%%%%%%%%%%%%%%%
 %             % TEST DRAW OF POSITION
-%             Screen('FrameOval', window, [255 255 255], [xPos1-HitSize/2 yPos1-HitSize/2 xPos1+HitSize/2 yPos1+HitSize/2] );
-%             Screen('FrameOval', window, [255 255 255], [xPos1-5 yPos1-5 xPos1+5 yPos1+5] );
+            Screen('FrameOval', window, [255 255 255], [xPos1-HitSize/2 yPos1-HitSize/2 xPos1+HitSize/2 yPos1+HitSize/2] );
+            Screen('FrameOval', window, [255 255 255], [xPos1-5 yPos1-5 xPos1+5 yPos1+5] );
              
-%             Screen('FrameOval', window, [255 255 255], [xPos2-HitSize/2 yPos2-HitSize/2 xPos2+HitSize/2 yPos2+HitSize/2] );
-%             Screen('FrameOval', window, [255 255 255], [xPos2-5 yPos2-5 xPos2+5 yPos2+5] );
+            Screen('FrameOval', window, [255 255 255], [xPos2-HitSize/2 yPos2-HitSize/2 xPos2+HitSize/2 yPos2+HitSize/2] );
+            Screen('FrameOval', window, [255 255 255], [xPos2-5 yPos2-5 xPos2+5 yPos2+5] );
              
-%             DrawText(window,{num2str(zPos1)},{[255 255 255]},20,25,0,0); %
-%             DrawText(window,{num2str(zPos2)},{[255 255 255]},20,125,0,0); %
+            DrawText(window,{num2str(zPos1)},{[255 255 255]},20,25,0,0); %
+            DrawText(window,{num2str(zPos2)},{[255 255 255]},20,125,0,0); %
             %%%%%%%%%%%%%%%%%%%
             
             % check whether target is hit

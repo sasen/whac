@@ -18,4 +18,3 @@ else
         Screen('Blendfunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     end
 end
-ShowHideWinTaskbarMex(0)
