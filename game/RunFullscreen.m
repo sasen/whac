@@ -36,20 +36,21 @@ ScrRes		    = [ResInfo.width ResInfo.height];
 
 KbName('UnifyKeyNames');
 
-nMaxTrials                  = 30;           % number of trials per experiment.
-nTrials                     = 10;           % number of trials per block. To prevent tracker crashes, this should be small.
+blockStructure              = [3 6 6 6 6 6 6];   % 3 practice trials; switch after each block 
 TrialLength                 = 30;           % length of a game [s]
 MaxTargetsOnScreen          = 8;            % maximum number of targets presented on screen simulteanously
 TargetIntervalTimeRange     = [0 1500];     % time range of interval between targets [ms]
 TargetPresTime              = 1250;         % time a target will stay on screen [ms]
 TargetSize                  = 40;           % target diameter [pixel]
 HitSize                     = 40;           % size of hit circle (if this circle touches the target, it is hit)
-FeedBackDuration            = .75;         % duration of the feedback rectangle presented after target is hit
-
+FeedBackDuration            = 0.75;         % duration of the feedback rectangle presented after target is hit
 RecordHz                    = 200;          % at which speed should the tracker record?
 
+nMaxTrials = sum(blockStructure);   % number of trials per experiment
+newBlockNums = cumsum([1 blockStructure]);
+
 meanNumberOfTargetOnScreen  = MaxTargetsOnScreen/((TargetPresTime+mean(TargetIntervalTimeRange))/TargetPresTime);
-blockNums                   = linspace(1,nMaxTrials+1,(nMaxTrials/nTrials)+1);
+
 
 %% More parameters
 
@@ -80,18 +81,31 @@ targetFeedbackCols(1,:,6) = [255 0 0];
 targetFeedbackCols(2,:,6) = [255 0 0];
 
 % MAKE CALIBRATION TO GET THESE CORNERS!
-calcorners = NaN(3,3,3);
-calcorners(:,:,1) = [4.5914   13.8926   23.1742
-                    5.0000   14.2434   23.5634
-                    5.2680   14.4818   23.8340];
-                     
-calcorners(:,:,2) = [0.0217    0.4300    0.9884
-                    -6.7067   -6.3475   -5.8403
-                    -13.6602  -13.3281  -12.8529];
-                     
-calcorners(:,:,3) = [9.2613    9.2640    9.0308
-                    9.5755    9.5183    9.2453
-                    9.8692    9.7699    9.3148];
+calcorners(:,:,1) = [    4.8078   13.9688   23.1681
+    5.0142   14.2244   23.5174
+    5.2643   14.4456   23.8417];
+
+calcorners(:,:,2) =[    0.5527    0.8864    1.2118
+   -6.2717   -5.9730   -5.6018
+  -13.3088  -13.0224  -12.7822];
+
+
+calcorners(:,:,3) = [
+    8.9273    8.8635    8.5339
+    9.2165    9.0977    8.7652
+    9.5305    9.3808    8.8094];
+% calcorners = NaN(3,3,3);
+% calcorners(:,:,1) = [4.5914   13.8926   23.1742
+%                     5.0000   14.2434   23.5634
+%                     5.2680   14.4818   23.8340];
+%                      
+% calcorners(:,:,2) = [0.0217    0.4300    0.9884
+%                     -6.7067   -6.3475   -5.8403
+%                     -13.6602  -13.3281  -12.8529];
+%                      
+% calcorners(:,:,3) = [9.2613    9.2640    9.0308
+%                     9.5755    9.5183    9.2453
+%                     9.8692    9.7699    9.3148];
 
 fitval = [];
 % fitval(1,:) = polyfit(nanmean(calcorners(:,:,1)),nanmean(calcorners(:,:,2)),1);
@@ -103,55 +117,33 @@ maxZ = 10;
  
 %% Input
 
+ExpNum  = 1;
 dirname = ['Results/RunFullscreen/'];
+pwdir = 'C:\Documents and Settings\Maryam\My Documents\MATLAB\Whac-a-mole';
+cd(pwdir);
 if ExpMode > 0
-    ppname1 = input('Initials Player 1:','s');
-    ppname2 = input('Initials Player 2:','s');
-    
-    startTrialNum = str2num(input('Trial Number (1 if new experiment, or higher after crash):','s'));
-    
-    if ( sum(startTrialNum == blockNums)>0 & startTrialNum~=1 )
-        disp('DID PLAYERS SWITCH SIDES?! ');
-        disp('PLAYER 1 should stand left again (red sensor)');
-        disp('PLAYER 2 should stand right.');
-    end
-    
-    if ( startTrialNum == 1 & exist([dirname ppname1 '_' ppname2 '_t1_e1.mat'])>0 )
-        disp('INITIALS ALREADY EXIST');
-        error('STOP');
-        return;
-    end
-    
-    calibration = str2num(input('Calibration (0 if everything okay, or 1 for recalibration of tracker):','s'));
+    pname1 = input('Player 1 ID:','s');
+    pname2 = input('Player 2 ID:','s');
+    ppname = [pname1 '_' pname2];
 
-    ExpNum  = 1;
-    
-    ppname = [ppname1 '_' ppname2];
+    %% figure out what trial number to start with (if prev trials exist)
+    startTrialNum = 1;
+    while (exist([dirname ppname '_t' num2str(startTrialNum) '_e' num2str(ExpNum) '.mat'],'file') )
+        startTrialNum = startTrialNum + 1;  
+    end
+    disp(['Starting with trial ' num2str(startTrialNum)]);    
     Priority(2);
 else
-    ppname1 = 'tt';
-    ppname2 = 'tt';
-    
+    pname1 = 'tt';
+    pname2 = 'tt';
+    ppname = [pname1 '_' pname2];    
     startTrialNum = 1;
-
-    ExpNum = 999;
-    
-    calibration = 0;
-    
-    ppname = [ppname1 '_' ppname2];
+    ExpNum = 999;    
     Priority(1); %Why is this a different priority level? LOOK HERE
-end
-
-%% re-calibrate tracker
-% if necessary
-
-if ( calibration == 1 )
-    Calibration;
 end
 
 %% open screens
 
-%Screen('Preference', 'SkipSyncTests', 1);
 [window, windowRect] = InitializeScreens(ScrNum,BGCol,1);
 %% IF ABOVE LINE PRODUCES ERROR, REMEMBER TO addpath('MatlabFunctions')!
 
@@ -255,11 +247,8 @@ end
 %%
 
 SwitchSides = -1;
-
 ScorePlayers     = zeros(2,nMaxTrials);
-
 MoneyPlayers     = [0 0];
-
 PlayerContinues  = zeros(1,nMaxTrials); % this variable checks who presses the continue button, 1 = left, 2 = right
 
 if ( startTrialNum > 1 )
@@ -268,7 +257,7 @@ if ( startTrialNum > 1 )
     ScorePlayers     = MatData.ScorePlayers;
     MoneyPlayers     = MatData.MoneyPlayers;
     SwitchSides      = MatData.SwitchSides;
-    if ( sum(startTrialNum == blockNums) > 0 ) 
+    if ( sum(startTrialNum == newBlockNums) > 0 )
         SwitchSides = -1;
     end
     clear MatData
@@ -280,30 +269,18 @@ end
 %     data = tracker(5,RecordHz);
 % end
 
-if ( sum(startTrialNum == blockNums)>0 )
-    endTrialNum = startTrialNum+nTrials-1;
-else
-    endTrialNum = blockNums(find(startTrialNum<blockNums,1,'first'))-1;
-end
-
+endTrialNum = nMaxTrials;  %newBlockNums(find(newBlockNums<=startTrialNum,1,'last')+1)-1;
 
 %% Trial loop
 for TrlNum = startTrialNum:endTrialNum
 %     disp(['Loading trial: ' num2str(TrlNum)]);
    
-%% show flip sides instructions
-    
-    if sum(TrlNum == blockNums+nTrials/2) > 0 % every half of the trials
+%% show switch sides instructions    
+    if sum(TrlNum == newBlockNums(2:end)) > 0
         DrawSwitchSidesInstruction;
         SwitchSides = -1*SwitchSides;
     end
     
-%% show mole instructions
-
-%     if TrlNum < 4 | sum(TrlNum == ceil(linspace(startTrialNum,endTrialNum+1,3)))>0
-%         DrawMoleTypeInstruction;
-%     end
-
 %% load trial (timing, type, and location of targets)  
 
     nTargetOnsets       = 2*round(1000*TrialLength/(TargetPresTime+mean(TargetIntervalTimeRange)));
@@ -313,12 +290,12 @@ for TrlNum = startTrialNum:endTrialNum
     HitList_t           = zeros(MaxTargetsOnScreen,nTargetOnsets); % timing of hitting the target
     HitList_p           = zeros(MaxTargetsOnScreen,nTargetOnsets); % player idx who hit the target
     MoleTypeList        = zeros(MaxTargetsOnScreen,nTargetOnsets);
-    
-    TrackList           = cell(1,2);
-    TrackList{1}        = NaN(3,TrialLength*260); % 240 Hz -> increased to 260 just to be sure in cases of a bit higher Hz rates
-    TrackList{2}        = NaN(3,TrialLength*260); % 240 Hz
-    
     TargetCoverageMap   = zeros(ScrRes(2),ScrRes(1));
+    
+    TrackList           = cell(1,3);
+    TrackList{1}        = NaN(3,TrialLength*RecordHz);
+    TrackList{2}        = NaN(3,TrialLength*RecordHz);
+    TrackList{3}        = NaN(1,TrialLength*RecordHz);
     
 %     if ( ExpMode > 0 )
 %         tracker(0,RecordHz);
@@ -338,7 +315,6 @@ for TrlNum = startTrialNum:endTrialNum
     
     rng('shuffle');
     nHistoryTargetOverlapCheck = 4; % number of iterations back into history to check for overlapping targets
-    count = 0;
     for j = 1:nTargetOnsets
         if j > nHistoryTargetOverlapCheck
             TargetCoverageMap = TargetCoverageMap-1;
@@ -395,7 +371,7 @@ for TrlNum = startTrialNum:endTrialNum
     else
         data = ones(5,2);
     end
-    trackerReadNow = GetSecs;
+    trackedNow = GetSecs;
     
     PlayerLeftIdx   = (SwitchSides/2)+1.5; % NOTE THAT PLAYER LEFT DOES NOT HAVE TO BE PLAYER 1 (only at the beginning and after each 10 trials)
     PlayerRightIdx  = mod((SwitchSides/2)+1.5,2)+1;
@@ -408,11 +384,12 @@ for TrlNum = startTrialNum:endTrialNum
     targetFeedback = [];
     
     tStart          = GetSecs;
+    dataCount       = 0;
     targetNum       = ones(1,MaxTargetsOnScreen);
     targetHit       = zeros(1,MaxTargetsOnScreen);
     playerHit       = zeros(1,MaxTargetsOnScreen);
     targetShown     = zeros(1,MaxTargetsOnScreen);
-    while GetSecs-tStart < TrialLength
+    while ( (GetSecs-tStart < TrialLength) && ~KbCheck)
         
         Screen('FillRect', window, BGCol); % draw background
         
@@ -447,9 +424,8 @@ for TrlNum = startTrialNum:endTrialNum
             end
 
             % check whether feedback should be presented about target hit
-            i = 0;
-            while i < size(targetFeedback,2)
-                i = i +1;
+            i = 1;
+            while i <= size(targetFeedback,2)
                 if ( GetSecs-targetFeedback(3,i) > FeedBackDuration ) % remove because feedback is over
                     targetFeedback = [targetFeedback(:,1:i-1) targetFeedback(:,i+1:end)];
                 elseif ( GetSecs-targetFeedback(3,i) <= FeedBackDuration & targetFeedback(3,i)~= 0 ) % show feedback
@@ -467,118 +443,118 @@ for TrlNum = startTrialNum:endTrialNum
                     % add to feedback pane #1
                     Screen('DrawTexture', window, winfb, P1rect, targetArea(1,:),0+fbAngle);
                     Screen('DrawTexture', window, winfb, P2rect, targetArea(2,:),0+fbAngle);
+                    i = i+1;
                 end
             end
-                        
+            
+            WaitSecs('UntilTime', trackedNow+1/RecordHz);  % avoid buffer underflow
             if ( ExpMode > 0 )
-                data = tracker(5,RecordHz);
-%                 [data, cols, bytes_read] = ReadPnoRTAllML_ver4(code);
-%                 for i = 1:2 % check for correctness of data
-%                     for j = 1:5
-%                         checkdata((i-1)*5+j) = ~isnumeric(data(j,i));
-%                     end
-%                 end
-%                 checkdata(11) = data(2,1)<=0;
-%                 checkdata(12) = data(2,2)<=0;
-%                 if( bytes_read ~= 48 | sum(checkdata)>0 )
-%                     data = NaN(5,2);
-%                 end
+                % data = tracker(5,RecordHz);
+                [data, cols, bytes_read] = ReadPnoRTAllML_ver4(5);
             else
                 data = ones(5,2);
+                bytes_read = 48;
             end
-%             WaitSecs('UntilTime', trackerReadNow+1/RecordHz);
-            trackerReadNow = GetSecs;
+            trackedNow = GetSecs;
 
-            
-            [xPos1, yPos1, zPos1, xPos2, yPos2, zPos2] = TransformTrackerData(data,calcorners,ScrRes,fitval);
-
-            TimeStampLeft   = round(data(2,1)-TimeStampTrackerLeft);
-            TimeStampRight  = round(data(2,2)-TimeStampTrackerRight);
-
-            TrackList{PlayerLeftIdx}(:,TimeStampLeft)         = [xPos1; yPos1; zPos1];
-            TrackList{PlayerRightIdx}(:,TimeStampRight)       = [xPos2; yPos2; zPos2];
-
-%             %%%%%%%%%%%%%%%%%%%
-%             % TEST DRAW OF POSITION
-            Screen('FrameOval', window, [255 255 255], [xPos1-HitSize/2 yPos1-HitSize/2 xPos1+HitSize/2 yPos1+HitSize/2] );
-            Screen('FrameOval', window, [255 255 255], [xPos1-5 yPos1-5 xPos1+5 yPos1+5] );
-             
-            Screen('FrameOval', window, [255 255 255], [xPos2-HitSize/2 yPos2-HitSize/2 xPos2+HitSize/2 yPos2+HitSize/2] );
-            Screen('FrameOval', window, [255 255 255], [xPos2-5 yPos2-5 xPos2+5 yPos2+5] );
-             
-            DrawText(window,{num2str(zPos1)},{[255 255 255]},20,25,0,0); %
-            DrawText(window,{num2str(zPos2)},{[255 255 255]},20,125,0,0); %
-            %%%%%%%%%%%%%%%%%%%
-            
-            % check whether target is hit
-            for i = 1:MaxTargetsOnScreen
-                if ( targetShown(i) == 1 ) % only if target is really presented
-                    LeftPlayerHit   = zPos1 < maxZ & LocationListX(i,targetNum(i)) > xPos1-HitSize/2 & LocationListX(i,targetNum(i)) < xPos1+HitSize/2 & LocationListY(i,targetNum(i)) > yPos1-HitSize/2 & LocationListY(i,targetNum(i)) < yPos1+HitSize/2;
-                    RightPlayerHit  = zPos2 < maxZ & LocationListX(i,targetNum(i)) > xPos2-HitSize/2 & LocationListX(i,targetNum(i)) < xPos2+HitSize/2 & LocationListY(i,targetNum(i)) > yPos2-HitSize/2 & LocationListY(i,targetNum(i)) < yPos2+HitSize/2;
-
-                    if ( LeftPlayerHit & RightPlayerHit )
-                        if ( zPos1 < zPos2 )
+            if ( IsTrackerPacketOK(data, bytes_read) )   % don't process invalid data
+                dataCount = dataCount + 1;
+                [xPos1, yPos1, zPos1, xPos2, yPos2, zPos2] = TransformTrackerData(data,calcorners,ScrRes,fitval);
+                TrackList{PlayerLeftIdx}(:,dataCount)  = [xPos1; yPos1; zPos1];
+                TrackList{PlayerRightIdx}(:,dataCount) = [xPos2; yPos2; zPos2];
+                TrackList{3}(1,dataCount)              = data(2,1)-TimeStampTrackerLeft;
+                
+                
+                % check whether target is hit
+                for i = 1:MaxTargetsOnScreen
+                    if ( targetShown(i) == 1 ) % only if target is really presented
+                        %%% TODO checkout this maxZ strategy!!!
+                        LeftPlayerHit   = zPos1 < maxZ & LocationListX(i,targetNum(i)) > xPos1-HitSize/2 & LocationListX(i,targetNum(i)) < xPos1+HitSize/2 & LocationListY(i,targetNum(i)) > yPos1-HitSize/2 & LocationListY(i,targetNum(i)) < yPos1+HitSize/2;
+                        RightPlayerHit  = zPos2 < maxZ & LocationListX(i,targetNum(i)) > xPos2-HitSize/2 & LocationListX(i,targetNum(i)) < xPos2+HitSize/2 & LocationListY(i,targetNum(i)) > yPos2-HitSize/2 & LocationListY(i,targetNum(i)) < yPos2+HitSize/2;
+                        
+                        if ( LeftPlayerHit & RightPlayerHit )
+                            if ( zPos1 < zPos2 )
+                                targetHit(i) = 1; % 1 for player left, 2 for player right, 0 if not hit
+                                playerHit(i) = PlayerLeftIdx;
+                            elseif ( zPos1 > zPos2 )
+                                targetHit(i) = 2; % 1 for player left, 2 for player right, 0 if not hit
+                                playerHit(i) = PlayerRightIdx;
+                            else    % randomly assign the point to someone
+                                targetHit(i) = round(rand(1,1))+1;
+                                if ( targetHit(i) == 1 )
+                                    playerHit(i) = PlayerLeftIdx;
+                                else
+                                    playerHit(i) = PlayerRightIdx;
+                                end
+                            end
+                            targetFeedback(1:2,end+1) = [LocationListX(i,targetNum(i)) LocationListY(i,targetNum(i))];
+                            targetFeedback(3,end) = GetSecs;
+                            targetFeedback(4,end) = targetHit(i);
+                            targetFeedback(5,end) = targetNum(i);
+                            targetFeedback(6,end) = i;
+                        elseif ( LeftPlayerHit )
                             targetHit(i) = 1; % 1 for player left, 2 for player right, 0 if not hit
                             playerHit(i) = PlayerLeftIdx;
-                        elseif ( zPos1 > zPos2 )
+                            targetFeedback(1:2,end+1) = [LocationListX(i,targetNum(i)) LocationListY(i,targetNum(i))];
+                            targetFeedback(3,end) = GetSecs;
+                            targetFeedback(4,end) = targetHit(i);
+                            targetFeedback(5,end) = targetNum(i);
+                            targetFeedback(6,end) = i;
+                        elseif ( RightPlayerHit )
                             targetHit(i) = 2; % 1 for player left, 2 for player right, 0 if not hit
                             playerHit(i) = PlayerRightIdx;
+                            targetFeedback(1:2,end+1) = [LocationListX(i,targetNum(i)) LocationListY(i,targetNum(i))];
+                            targetFeedback(3,end) = GetSecs;
+                            targetFeedback(4,end) = targetHit(i);
+                            targetFeedback(5,end) = targetNum(i);
+                            targetFeedback(6,end) = i;
                         else
-                            targetHit(i) = round(rand(1,1))+1;
-                            if ( targetHit(i) == 1 )
-                                playerHit(i) = PlayerLeftIdx;
-                            else
-                                playerHit(i) = PlayerRightIdx;
-                            end
+                            targetHit(i) = 0;
                         end
-                        targetFeedback(1:2,end+1) = [LocationListX(i,targetNum(i)) LocationListY(i,targetNum(i))];
-                        targetFeedback(3,end) = GetSecs;
-                        targetFeedback(4,end) = targetHit(i);
-                        targetFeedback(5,end) = targetNum(i);
-                        targetFeedback(6,end) = i;
-                    elseif ( LeftPlayerHit )
-                        targetHit(i) = 1; % 1 for player left, 2 for player right, 0 if not hit
-                        playerHit(i) = PlayerLeftIdx;
-                        targetFeedback(1:2,end+1) = [LocationListX(i,targetNum(i)) LocationListY(i,targetNum(i))];
-                        targetFeedback(3,end) = GetSecs;
-                        targetFeedback(4,end) = targetHit(i);
-                        targetFeedback(5,end) = targetNum(i);
-                        targetFeedback(6,end) = i;
-                    elseif ( RightPlayerHit )
-                        targetHit(i) = 2; % 1 for player left, 2 for player right, 0 if not hit
-                        playerHit(i) = PlayerRightIdx;
-                        targetFeedback(1:2,end+1) = [LocationListX(i,targetNum(i)) LocationListY(i,targetNum(i))];
-                        targetFeedback(3,end) = GetSecs;
-                        targetFeedback(4,end) = targetHit(i);
-                        targetFeedback(5,end) = targetNum(i);
-                        targetFeedback(6,end) = i;
-                    else
-                        targetHit(i) = 0;
-                    end
-
-                    % if target is hit, change score
-                    if ( targetHit(i) > 0 )
-                        ScorePlayers(playerHit(i),TrlNum) = ScorePlayers(playerHit(i),TrlNum)+OutComePlayers(1,MoleTypeList(i,targetNum(i)));
-                        ScorePlayers(mod(playerHit(i),2)+1,TrlNum) = ScorePlayers(mod(playerHit(i),2)+1,TrlNum)+OutComePlayers(2,MoleTypeList(i,targetNum(i)));
+                        
+                        % if target is hit, change score
+                        if ( targetHit(i) > 0 )
+                            ScorePlayers(playerHit(i),TrlNum) = ScorePlayers(playerHit(i),TrlNum)+OutComePlayers(1,MoleTypeList(i,targetNum(i)));
+                            ScorePlayers(mod(playerHit(i),2)+1,TrlNum) = ScorePlayers(mod(playerHit(i),2)+1,TrlNum)+OutComePlayers(2,MoleTypeList(i,targetNum(i)));
+                        end
                     end
                 end
-            end
-        end
+            end   % processing of valid tracker data
+        end   % 1/ScrHz while loop
+
+        
+                %%%%%%%%%%%%%%%%%%%
+                % TEST DRAW OF POSITION
+%                Screen('FrameOval', window, [255 255 255], [xPos1-HitSize/2 yPos1-HitSize/2 xPos1+HitSize/2 yPos1+HitSize/2] );
+                Screen('FrameOval', window, [255 255 255], [xPos1-5 yPos1-5 xPos1+5 yPos1+5] );
+                
+%                Screen('FrameOval', window, [255 255 255], [xPos2-HitSize/2 yPos2-HitSize/2 xPos2+HitSize/2 yPos2+HitSize/2] );
+                Screen('FrameOval', window, [255 255 255], [xPos2-5 yPos2-5 xPos2+5 yPos2+5] );
+                
+                DrawText(window,{num2str(zPos1)},{[255 255 255]},20,25,0,0); %
+                DrawText(window,{num2str(zPos2)},{[255 255 255]},20,125,0,0); %
+                %%%%%%%%%%%%%%%%%%
+
         
         % show updated screen
         vbl = Screen('Flip', window, vbl+0.5*(1/ScrHz), [], 1); 
     end  %%% timepoints loop (for M timepoints within a trial)
 
+    if (GetSecs-tStart < TrialLength)  % keypress to quit game
+        Screen('DrawText',window,'Quitting due to keypress',ScrRes(1)/2-100,ScrRes(2)/2,[255 255 255]);
+        Screen('Flip', window);
+        WaitSecs(0.5);
+        break  % exit the outer trial loop
+    end
+    
     Screen('FillRect', window, BGCol); % draw background
     Screen('Flip', window);
     
     if ( ExpMode > 0 )
         tracker(0,RecordHz);
-%        WaitSecs(1);
-    end
+    end    
     
     Screen('FillRect', woff, [0 0 0]); % black bg for feedback pane
-    
     PlayerLeftScore = ScorePlayers(PlayerLeftIdx,TrlNum);
     PlayerRightScore = ScorePlayers(PlayerRightIdx,TrlNum);
         
@@ -593,7 +569,7 @@ for TrlNum = startTrialNum:endTrialNum
     elseif ( PlayerLeftScore < PlayerRightScore )
         DrawText(window,{'YOU LOSE!'},{[255 0 0]},0.5*ScrRes(1)/6,ScrRes(2)/6,0);
         DrawText(woff,{'YOU WIN!'},{[0 255 0]},0.5*ScrRes(1)/6,ScrRes(2)/6,0);      
- 	DrawText(window,{['YOUR SCORE IS  ' num2str(PlayerLeftScore)]},{[255 0 0]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
+ 	    DrawText(window,{['YOUR SCORE IS  ' num2str(PlayerLeftScore)]},{[255 0 0]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
        	DrawText(window,{['YOUR OPPONENT GOT  ' num2str(PlayerRightScore)]},{[0 255 0]},0.5*ScrRes(1)/6,2*ScrRes(2)/3,0);
       	DrawText(woff,{['YOUR SCORE IS  ' num2str(PlayerRightScore)]},{[0 255 0]},0.5*ScrRes(1)/6,ScrRes(2)/3,0);
        	DrawText(woff,{['YOUR OPPONENT GOT  ' num2str(PlayerLeftScore)]},{[255 0 0]},0.5*ScrRes(1)/6,2*ScrRes(2)/3,0);
@@ -609,25 +585,16 @@ for TrlNum = startTrialNum:endTrialNum
         MoneyPlayers(PlayerRightIdx) = MoneyPlayers(PlayerRightIdx)+0.4;
     end
     
-%    DrawText(window,{['BALANCE: ' num2str(MoneyPlayers(PlayerLeftIdx))]},{[255 255 255]},round(0.5*ScrRes(1)/6),round(ScrRes(2)/1.5),0);
-%    DrawText(woff,{['BALANCE: ' num2str(MoneyPlayers(PlayerRightIdx))]},{[255 255 255]},round(0.5*ScrRes(1)/6),round(ScrRes(2)/1.5),0);
-    
-    
-    
     %%%%%%%%%%%%%%%%%%%%% SAVE DATA 
     save([dirname ppname '_t' num2str(TrlNum) '_e' num2str(ExpNum),'.mat']); % SAVE DATA
     %%%%%%%%%%%%%%%%%%%%%
-    
-    
     
 %     disp('Participants read score results');        
     Screen('DrawTexture', window, woff, [], [ScrRes(1)/2 0 ScrRes(1) ScrRes(2)], 180);
     Screen('Flip', window);
 
     if ( ExpMode > 0 )
-%        WaitSecs(1);
         data = tracker(5,RecordHz);  % throw data away
-%        WaitSecs(1);
     end
     
     %% "next game" button created
@@ -640,55 +607,58 @@ for TrlNum = startTrialNum:endTrialNum
         continueHit = 0;
         while continueHit==0
             data = tracker(5,RecordHz); % check for "next" button tap
-            WaitSecs(1/RecordHz);
-            
             [xPos1, yPos1, zPos1, xPos2, yPos2, zPos2] = TransformTrackerData(data,calcorners,ScrRes,fitval);
             if ( yPos1 < AreaOfInterest(4) & yPos1 > AreaOfInterest(2) & xPos1 > AreaOfInterest(1) & xPos1 < AreaOfInterest(3) & zPos1 < maxZ )
                 PlayerContinues(TrlNum) = PlayerLeftIdx;
                 continueHit = 1;
+                trHit = 1;
+                xHit = xPos1;
+                yHit = yPos1;
             elseif ( yPos2 < AreaOfInterest(4) & yPos2 > AreaOfInterest(2) & xPos2 > AreaOfInterest(1) & xPos2 < AreaOfInterest(3) & zPos2 < maxZ )
                 PlayerContinues(TrlNum) = PlayerRightIdx;
                 continueHit = 1;
+                trHit = 2;
+                xHit = xPos2;
+                yHit = yPos2;
             end
         end
         % tracker(0,RecordHz);
     else
         WaitForKeyPress({'SPACE'});
+        trHit = 1;
+        xHit = 50;
+        yHit = 50;
     end    
     Screen('FillRect', window, BGCol); % draw background
     DrawText(window,{'LOADING'},TextColors,AreaOfInterest(1)+50,AreaOfInterest(2)+10,0,0);
-    Screen('Flip', window);        
+    
+    % Draw arrow toward continuing player
+    targetArea = [xHit-fbsc*TargetSize/2 yHit xHit+fbsc*TargetSize/2 yHit+fbsc*TargetSize/2;
+                  xHit-fbsc*TargetSize/2 yHit-fbsc*TargetSize/2 xHit+fbsc*TargetSize/2 yHit];    
+    fbAngle = 180*(trHit-1);
+    Screen('DrawTexture', window, winfb, fbArrowRect(trHit,:,1), targetArea(1,:),fbAngle);
+    Screen('DrawTexture', window, winfb, fbArrowRect(mod(trHit,2)+1,:,1), targetArea(2,:),fbAngle);    
+    Screen('Flip', window);
+
 end  %%%%%% trial loop (for N trials)
 
-%%% end of the block of games, or end of the expt
+%% end of the block of games, or end of the expt
 if ( ExpMode > 0 )
     tracker(0,RecordHz);
 end
 
-% give feedback
+%% end message
 Screen('FillRect', window, BGCol); % draw background
 Screen('FillRect', woff, BGCol); % draw background
 
 if ( TrlNum == nMaxTrials )
-    
-    Text = {'FINISHED!',... 
-    'Thanks for playing!'};
-
-    DrawText(window,Text,{[255 0 0]},100,200,0);
-    DrawText(woff,Text,{[255 0 0]},100,200,0);
-    
+    Text = {'FINISHED!','Thanks for playing!'};
+    DrawText(window,Text,{[0 255 0]},100,200,0);
+    DrawText(woff,Text,{[0 255 0]},100,200,0);    
 else
-    
-    Text = {'The experiment needs to be restarted!',... 
-        ''};
-
+    Text = {'The experiment needs to be restarted!','Call the experimenter'};
     DrawText(window,Text,TextColors,20,20,0);
-    DrawText(woff,Text,TextColors,20,20,0);
-        
-    Text = {'PLAYERS SHOULD ALSO SWITCH:','','SIDES,','AND TOUCH DEVICES','','CALL THE EXPERIMENTER'};
-    
-    DrawText(window,Text,TextColors,20,120,0,0);
-    DrawText(woff,Text,TextColors,20,120,0,0);
+    DrawText(woff,Text,TextColors,20,20,0);    
 end
 
 Screen('DrawTexture', window, woff, [], [ScrRes(1)/2 0 ScrRes(1) ScrRes(2)], 180);
@@ -698,19 +668,10 @@ Screen('FillRect', window, BGCol); % draw background
 Screen('Flip', window);
 
 ShowCursor('Arrow');
-ListenChar(0);
+%ListenChar(0);
 Screen CloseAll;
-ShowHideWinTaskbarMex(1);
 
 % disp('recorded at:');
 % disp([num2str((sum(isfinite(TrackList{1}(1,:)))/9600)*240) 'Hz']) % for long 40s trials
 
-clc;
-
-% disp(['Money Player 1: ' num2str(MoneyPlayers(1))])
-% disp(['Money Player 2: ' num2str(MoneyPlayers(2))])
-
-if TrlNum<nMaxTrials
-    disp(['Next trial should be: ' num2str(endTrialNum+1)])
-end
-
+home;
