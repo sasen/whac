@@ -2,8 +2,8 @@ function SensorToDotGrid()
 ResInfo 	    = Screen('Resolution',0);
 ScrRes		    = [ResInfo.width ResInfo.height];
 ScrHz               =   60;             % framerate of screen (frames/second)
-RecordHz                    = 200;          % at which speed should the tracker record?
-TrialLength = 30;
+RecordHz                    = 150;          % at which speed should the tracker record?
+TrialLength = 90;
 %HoriScrDist         =   400;            % (mm)
 
 calcorners(:,:,1) = [    
@@ -54,6 +54,16 @@ while (trackedNow-tStart < TrialLength)
     end   % processing of valid tracker data
   end   % 1/ScrHz while loop
 
+  if (trackedNow-tStart < TrialLength/4)
+    Screen('FillRect',win,[0 255 0],[0 0 40 40]);
+  elseif (trackedNow-tStart < TrialLength/2)
+    Screen('FillRect',win,[255 255 0],[0 0 30 30]);
+  elseif (trackedNow-tStart < TrialLength*3/4)
+    Screen('FillRect',win,[255 0 0],[0 0 25 25]);
+  else
+    Screen('FillRect',win,[255 255 255],[0 0 20 20]);
+  end
+  
   Screen('FrameOval', win, [255 0 0], CenterSq(xPos1,yPos1,4));
   Screen('FrameOval', win, [0 0 255], CenterSq(xPos2,yPos2,4));
   vbl = Screen('Flip', win, vbl+0.5*(1/ScrHz), 1, 1); 
