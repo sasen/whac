@@ -2,17 +2,17 @@ function Velocity = ConfedTest
 %ConfedTest Basic analysis of confederate effectiveness
 %   Detailed explanation goes here
 
-load /Users/eshayer/Desktop/Whac-a-mole/ss1717_zb1717_t3_e1.mat
+load /Users/eshayer/Desktop/Whac-a-mole/ss1717_zb1717_t6_e1.mat
 
 MoleInfoFull=NaN(6,320);
 for i=1:40
     for j=1:8
-        MoleInfoFull(1,40*j+i-40) = MoleTypeList(j,i); %Color of target
-        MoleInfoFull(2,40*j+i-40) = HitList_p(j,i); %Which player hit
-        MoleInfoFull(3,40*j+i-40) = (TrialList(j,i)/1000); %Time stamp of target appearence
-        MoleInfoFull(4,40*j+i-40) = HitList_t(j,i); %Time stamp of target hit
-        MoleInfoFull(5,40*j+i-40) = LocationListX(j,i); %X Location of target
-        MoleInfoFull(6,40*j+i-40) = LocationListY(j,i); %Y Location of target
+        MoleInfoFull(1,40*j+i-40) = MoleTypeList(j,i); %Color of target (1=green, 2=yellow, 3-6=distractors)
+        MoleInfoFull(2,40*j+i-40) = HitList_p(j,i); %Which player hit (0=no hit, 1=player 1, 2=player 2)
+        MoleInfoFull(3,40*j+i-40) = (TrialList(j,i)/1000); %Time stamp of target appearence in seconds
+        MoleInfoFull(4,40*j+i-40) = HitList_t(j,i); %Time stamp of target hit in seconds
+        MoleInfoFull(5,40*j+i-40) = LocationListX(j,i); %X Location of target (pixels)
+        MoleInfoFull(6,40*j+i-40) = LocationListY(j,i); %Y Location of target (pixels)
     end
 end
 
@@ -162,25 +162,36 @@ for i=1:size(MoleInfoFull,2) %for each target
         CurvedSinglePositionChange1(1:end)=NaN;
     end
 end
-
-CurvedEachTarget1=NaN(size(CurvedEachPositionChange1,1),1);
-CurvedEachDistractor1=NaN(size(CurvedEachPositionChange1,1),1);
-
-for i=1:size(CurvedEachPositionChange1,1)
-    if MoleInfoFull(1,i)==1||2
-        CurvedEachTarget1(i,:)=CurvedEachPositionChange1(i,1);
-    elseif MoleInfoFull(1,i)~=1||2
-        CurvedEachDistractor1(i,:)=CurvedEachPositionChange1(i,1);
+for i=1:size(MoleInfoFull,2)
+    if MoleInfoFull(3,i)>=TrialLength
+        EachTargetHitTime(i,:)=NaN;
+    elseif MoleInfoFull(2,i)==0;
+        EachTargetHitTime(i,:)=(TargetPresTime/1000);
+    else
+        EachTargetHitTime(i,:)=((MoleInfoFull(4,i)-MoleInfoFull(3,i)));
     end
 end
 
-CurvedEachDistractor1
-CurvedEachTarget1
+CurvedEachTargetHitVelo1=NaN(size(CurvedEachPositionChange1,1),1);
+CurvedEachTargetMissVelo1=NaN(size(CurvedEachPositionChange1,1),1);
+CurvedEachDistractorHitVelo1=NaN(size(CurvedEachPositionChange1,1),1);
+CurvedEachDistractorMissVelo1=NaN(size(CurvedEachPositionChange1,1),1);
 
-figure
-plot(CurvedEachDistractor1,'b.')
-hold on
-plot(CurvedEachTarget1,'r.')
+for i=1:size(CurvedEachPositionChange1,1)
+    if MoleInfoFull(1,i)<=2
+        if MoleInfoFull(2,i)~=0
+            CurvedEachTargetHitVelo1(i,:)=(CurvedEachPositionChange1(i,1)/EachTargetHitTime(i,:));
+        else
+            CurvedEachTargetMissVelo1(i,:)=(CurvedEachPositionChange1(i,:)/EachTargetHitTime(i,:));
+        end
+    else
+        if MoleInfoFull(2,i)~=0
+            CurvedEachDistractorHitVelo1(i,:)=(CurvedEachPositionChange1(i,1)/EachTargetHitTime(i,:));
+        else
+            CurvedEachDistractorMissVelo1(i,:)=(CurvedEachPositionChange1(i,:)/EachTargetHitTime(i,:));
+        end
+    end
+end
 
 for i=1:size(MoleInfoFull,2) %for each target
     if MoleInfoFull(3,i)>TrialLength
@@ -300,37 +311,41 @@ end
 
 %%Graphing
 
+% figure
+% plot(LinVelocity1,'b.')
+% hold on
+% plot(CurvedVelocity1,'r.')
+% title('Velocity of Player 1')
+% xlabel('Order of targets hit')
+% ylabel('Velocity (pixels/second)')
+% figure
+% plot(LinVelocity2,'b.')
+% hold on
+% plot(CurvedVelocity2,'r.')
+% title('Velocity of Player 2')
+% xlabel('Order of targets hit')
+% ylabel('Velocity (pixels/second)')
 figure
-plot(LinVelocity1,'b.')
+plot(CurvedEachDistractorHitVelo1,'b.')
 hold on
-plot(CurvedVelocity1,'r.')
-title('Velocity of Player 1')
-xlabel('Order of targets hit')
-ylabel('Velocity (pixels/second)')
-figure
-plot(LinVelocity2,'b.')
+plot(CurvedEachDistractorMissVelo1,'b*')
 hold on
-plot(CurvedVelocity2,'r.')
-title('Velocity of Player 2')
-xlabel('Order of targets hit')
-ylabel('Velocity (pixels/second)')
-figure
-plot(CurvedEachVelocity1,'b*')
+plot(CurvedEachTargetHitVelo1,'r.')
 hold on
-plot(CurvedEachVelocity2,'r*')
-title('Velocity for Each Target') %What is the meaning/reason for the split?
-xlabel('Mole IDs')
-ylabel('Velocity (pixels/second)')
-figure
-plot(TrackingVelocity1,'b.-')
-hold on
-plot(TrackingAccel1,'r.')
-figure
-plot(TrackingVelocity2,'b.-')
-hold on
-plot(TrackingAccel2,'r.')
-figure
-plot(RatioCurveLin1,'b.')
-hold on
-plot(RatioCurveLin2,'r.')
+plot(CurvedEachTargetMissVelo1,'r*')
+xlabel('MoleID')
+ylabel('Velocity (Pixels/second)')
+legend('Distractor Hit','Distractor Miss','Target Hit','Target Miss')
+% figure
+% plot(TrackingVelocity1,'b.-')
+% hold on
+% plot(TrackingAccel1,'r.')
+% figure
+% plot(TrackingVelocity2,'b.-')
+% hold on
+% plot(TrackingAccel2,'r.')
+% figure
+% plot(RatioCurveLin1,'b.')
+% hold on
+% plot(RatioCurveLin2,'r.')
 end
