@@ -5,5 +5,13 @@
 *.toc
 *~
 game/*~
+game/Results
 helpers/*~
+helpers/color_line*
+helpers/DrawMoleTypeInstruction.m
+helpers/MeasureLuminance.m
+helpers/ReadPnoRT*
+helpers/CheckRes.m
+helpers/CorrectClut.m
+helpers/RemoveListening.m
 analysis/*~

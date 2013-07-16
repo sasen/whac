@@ -119,9 +119,9 @@ maxZ = 10;
 
 ExpNum  = 1;
 dirname = ['Results/RunFullscreen/'];
-pwdir = 'C:\Documents and Settings\Maryam\My Documents\MATLAB\Whac-a-mole';
-cd(pwdir);
 if ExpMode > 0
+    pwdir = 'C:\Documents and Settings\Maryam\My Documents\MATLAB\Whac-a-mole';
+    cd(pwdir);
     pname1 = input('Player 1 ID:','s');
     pname2 = input('Player 2 ID:','s');
     ppname = [pname1 '_' pname2];
