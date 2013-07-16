@@ -2,7 +2,7 @@ function Velocity = ConfedTest
 %ConfedTest Basic analysis of confederate effectiveness
 %   Detailed explanation goes here
 
-load /Users/eshayer/Desktop/Whac-a-mole/ss1717_zb1717_t6_e1.mat
+load /Users/eshayer/Desktop/Whac-a-mole/ss1717_zb1717_t3_e1.mat
 
 MoleInfoFull=NaN(6,320);
 for i=1:40
@@ -233,6 +233,18 @@ for i=1:size(MoleInfoFull,2) %for each target
     end
 end
 
+%%Defining Reach Starts
+for i=1:size(MoleInfoFull,2)
+    ReachOrder1((2*i-1),:)=[i 1 MoleInfoFull(3,i)];
+    if MoleInfoFull(4,i)==0
+        ReachOrder1(2*i,:)=[i 2 NaN];
+    else
+        ReachOrder1(2*i,:)=[i 2 MoleInfoFull(4,i)];
+    end
+end
+ReachOrder1
+sort(ReachOrder1,3)
+ReachOrder1
 
 %%Time of Hit
 for i=1:size(MovementStart{1},1)
@@ -325,17 +337,17 @@ end
 % title('Velocity of Player 2')
 % xlabel('Order of targets hit')
 % ylabel('Velocity (pixels/second)')
-figure
-plot(CurvedEachDistractorHitVelo1,'b.')
-hold on
-plot(CurvedEachDistractorMissVelo1,'b*')
-hold on
-plot(CurvedEachTargetHitVelo1,'r.')
-hold on
-plot(CurvedEachTargetMissVelo1,'r*')
-xlabel('MoleID')
-ylabel('Velocity (Pixels/second)')
-legend('Distractor Hit','Distractor Miss','Target Hit','Target Miss')
+% figure
+% plot(CurvedEachDistractorHitVelo1,'b.')
+% hold on
+% plot(CurvedEachDistractorMissVelo1,'b*')
+% hold on
+% plot(CurvedEachTargetHitVelo1,'r.')
+% hold on
+% plot(CurvedEachTargetMissVelo1,'r*')
+% xlabel('MoleID')
+% ylabel('Velocity (Pixels/second)')
+% legend('Distractor Hit','Distractor Miss','Target Hit','Target Miss')
 % figure
 % plot(TrackingVelocity1,'b.-')
 % hold on

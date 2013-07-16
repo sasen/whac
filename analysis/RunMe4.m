@@ -137,7 +137,12 @@ if ( CreateData )
 %         disp(SwitchedCondition)
         
         for TrlNum = 1:maxTrialNums(s)
-            MatData = load(['../Results/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+            if exist(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+                MatData = load(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+            elseif exist(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithoutSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+                MatData = load(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithoutSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+            else MatData = load(['/Users/eshayer/Desktop/Whac-a-mole/Results/SwitchedColors/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+            end
             TrialIncludedVect = (MatData.TrialList/1000)<MatData.TrialLength; % to speed the code, remove data of targets that were not present because trial was over
             
             % check for variance in X and Y across pairs
