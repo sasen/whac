@@ -285,12 +285,12 @@ for TrlNum = startTrialNum:endTrialNum
 %% load trial (timing, type, and location of targets)  
 
     nTargetOnsets       = 2*round(1000*TrialLength/(TargetPresTime+mean(TargetIntervalTimeRange)));
-    TrialList           = zeros(MaxTargetsOnScreen,nTargetOnsets);
-    LocationListY       = zeros(MaxTargetsOnScreen,nTargetOnsets);
-    LocationListX       = zeros(MaxTargetsOnScreen,nTargetOnsets);
-    HitList_t           = zeros(MaxTargetsOnScreen,nTargetOnsets); % timing of hitting the target
-    HitList_p           = zeros(MaxTargetsOnScreen,nTargetOnsets); % player idx who hit the target
-    MoleTypeList        = zeros(MaxTargetsOnScreen,nTargetOnsets);
+    TrialList           = zeros(MaxTargetsOnScreen,nTargetOnsets,2);
+    LocationListY       = zeros(MaxTargetsOnScreen,nTargetOnsets,2);
+    LocationListX       = zeros(MaxTargetsOnScreen,nTargetOnsets,2);
+    HitList_t           = zeros(MaxTargetsOnScreen,nTargetOnsets,2); % timing of hitting the target
+    HitList_p           = zeros(MaxTargetsOnScreen,nTargetOnsets,2); % player idx who hit the target
+    MoleTypeList        = zeros(MaxTargetsOnScreen,nTargetOnsets,2);
     TargetCoverageMap   = zeros(ScrRes(2),ScrRes(1));
     
     TrackList           = cell(1,3);
@@ -304,14 +304,14 @@ for TrlNum = startTrialNum:endTrialNum
     
     rng('shuffle');
     for i = 1:MaxTargetsOnScreen
-         TrialList(i,:)     = [i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets))];
+         TrialList(i,:,1)     = [i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets))];
          
          tempList = [];
          for j = 1:ceil(nTargetOnsets/8)
             tempList = [tempList Shuffle([1 2 3 4 5 6 1 2])];
             
          end
-         MoleTypeList(i,:)  = tempList(1:nTargetOnsets);
+         MoleTypeList(i,:,1)  = tempList(1:nTargetOnsets);
     end
     
     rng('shuffle');
@@ -319,7 +319,7 @@ for TrlNum = startTrialNum:endTrialNum
     count = 0;
     HalfScrRes = [ScrRes(1)/2 ScrRes(2)];  % half-screens split along horizontal side
     woff1 = Screen('OpenOffScreenWindow',window,[0 0 0], [0 0 HalfScrRes]);
-%    woff2 = Screen('OpenOffScreenWindow',window,[0 0 0], [ScrRes(1)/2 0 ScrRes(1) ScrRes(2)]);
+    woff2 = Screen('OpenOffScreenWindow',window,[0 0 0], [ScrRes(1)/2 0 ScrRes(1) ScrRes(2)]);
     woff_fb1 = Screen('OpenOffScreenWindow',window,[0 0 0], [0 0 HalfScrRes]);
     woff_fb2 = Screen('OpenOffScreenWindow',window,[0 0 0], [0 0 HalfScrRes]);
 
@@ -333,21 +333,21 @@ for TrlNum = startTrialNum:endTrialNum
         end
         
         for i = 1:MaxTargetsOnScreen
-            LocationListY(i,j) = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
+            LocationListY(i,j,1) = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
             
-            LocationListX(i,j) = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));
+            LocationListX(i,j,1) = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));
             
-            TempCoverageMap = TargetCoverageMap(LocationListY(i,j)-TargetSize/2:LocationListY(i,j)+TargetSize/2,LocationListX(i,j)-TargetSize/2:LocationListX(i,j)+TargetSize/2);
+            TempCoverageMap = TargetCoverageMap(LocationListY(i,j,1)-TargetSize/2:LocationListY(i,j,1)+TargetSize/2,LocationListX(i,j,1)-TargetSize/2:LocationListX(i,j,1)+TargetSize/2);
             
             while ( sum(TempCoverageMap(:))>0 )
-                LocationListY(i,j)  = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
-                LocationListX(i,j)  = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));
+                LocationListY(i,j,1)  = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
+                LocationListX(i,j,1)  = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));
                 
-                TempCoverageMap = TargetCoverageMap(LocationListY(i,j)-TargetSize/2:LocationListY(i,j)+TargetSize/2,LocationListX(i,j)-TargetSize/2:LocationListX(i,j)+TargetSize/2);
+                TempCoverageMap = TargetCoverageMap(LocationListY(i,j,1)-TargetSize/2:LocationListY(i,j,1)+TargetSize/2,LocationListX(i,j,1)-TargetSize/2:LocationListX(i,j,1)+TargetSize/2);
                 
             end    
             
-            TargetCoverageMap(LocationListY(i,j)-TargetSize/2:LocationListY(i,j)+TargetSize/2,LocationListX(i,j)-TargetSize/2:LocationListX(i,j)+TargetSize/2) = TargetCoverageMap(LocationListY(i,j)-TargetSize/2:LocationListY(i,j)+TargetSize/2,LocationListX(i,j)-TargetSize/2:LocationListX(i,j)+TargetSize/2)+TargetCoverageNum;
+            TargetCoverageMap(LocationListY(i,j,1)-TargetSize/2:LocationListY(i,j,1)+TargetSize/2,LocationListX(i,j,1)-TargetSize/2:LocationListX(i,j,1)+TargetSize/2) = TargetCoverageMap(LocationListY(i,j,1)-TargetSize/2:LocationListY(i,j,1)+TargetSize/2,LocationListX(i,j,1)-TargetSize/2:LocationListX(i,j,1)+TargetSize/2)+TargetCoverageNum;
         end
         
     end
