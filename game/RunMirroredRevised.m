@@ -354,24 +354,14 @@ for TrlNum = startTrialNum:endTrialNum
             TempCoverageMap{PlayerRightIdx}    = TargetCoverageMap{PlayerRightIdx}(LocationListY{PlayerRightIdx}(i,j)-TargetSize/2:LocationListY{PlayerRightIdx}(i,j)+TargetSize/2,LocationListX{PlayerRightIdx}(i,j)-TargetSize/2:LocationListX{PlayerRightIdx}(i,j)+TargetSize/2);
             while ( sum(TempCoverageMap{PlayerLeftIdx}(:))>0 )
                 LocationListY{PlayerLeftIdx}(i,j)  = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
-                LocationListY{PlayerRightIdx}(i,j) = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
                 LocationListX{PlayerLeftIdx}(i,j)  = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));     
-                LocationListX{PlayerRightIdx}(i,j) = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));
-                leftX1 = LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2;
-                leftX2 = LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2;
-                leftY1 = LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2;
-                leftY2 = LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2;
-                TempCoverageMap{PlayerLeftIdx}     = TargetCoverageMap{PlayerLeftIdx}(leftY1:leftY2,leftX1:leftX2);
-                TempCoverageMap{PlayerRightIdx}    = TargetCoverageMap{PlayerRightIdx}(LocationListY{PlayerRightIdx}(i,j)-TargetSize/2:LocationListY{PlayerRightIdx}(i,j)+TargetSize/2,LocationListX{PlayerRightIdx}(i,j)-TargetSize/2:LocationListX{PlayerRightIdx}(i,j)+TargetSize/2);
+                TempCoverageMap{PlayerLeftIdx}     = TargetCoverageMap{PlayerLeftIdx}(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2);
             end
             while ( sum(TempCoverageMap{PlayerRightIdx}(:))>0 )
-                LocationListY{PlayerLeftIdx}(i,j)  = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
-                LocationListY{PlayerRightIdx}(i,j) = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
-                LocationListX{PlayerLeftIdx}(i,j)  = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));     
+                LocationListY{PlayerRightIdx}(i,j) = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));   
                 LocationListX{PlayerRightIdx}(i,j) = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));                
-                TempCoverageMap{PlayerLeftIdx}     = TargetCoverageMap{PlayerLeftIdx}(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2);
                 TempCoverageMap{PlayerRightIdx}    = TargetCoverageMap{PlayerRightIdx}(LocationListY{PlayerRightIdx}(i,j)-TargetSize/2:LocationListY{PlayerRightIdx}(i,j)+TargetSize/2,LocationListX{PlayerRightIdx}(i,j)-TargetSize/2:LocationListX{PlayerRightIdx}(i,j)+TargetSize/2);
-            end                
+            end
             TargetCoverageMap{PlayerLeftIdx}(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2) = TargetCoverageMap{PlayerLeftIdx}(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2)+TargetCoverageNum;
             TargetCoverageMap{PlayerRightIdx}(LocationListY{PlayerRightIdx}(i,j)-TargetSize/2:LocationListY{PlayerRightIdx}(i,j)+TargetSize/2,LocationListX{PlayerRightIdx}(i,j)-TargetSize/2:LocationListX{PlayerRightIdx}(i,j)+TargetSize/2) = TargetCoverageMap{PlayerRightIdx}(LocationListY{PlayerRightIdx}(i,j)-TargetSize/2:LocationListY{PlayerRightIdx}(i,j)+TargetSize/2,LocationListX{PlayerRightIdx}(i,j)-TargetSize/2:LocationListX{PlayerRightIdx}(i,j)+TargetSize/2)+TargetCoverageNum;
         end        
