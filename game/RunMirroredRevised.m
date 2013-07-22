@@ -59,12 +59,12 @@ OutComePlayers               = [1 1 -1*ones(1,4);
                                 0 0 0 0 0 0];
 
 % equalized for luminance at screen border (no projector bias)     
-TargetColors  = [ 0   255     0;,... % green   22.3, .186/.670
-                150   150    10;,... % yellow  22.6, .340/.545
-                255     0     0;,... % red     6.64, .621/.322
-                190     0   190;,... % magenta 6.32, .314/.131
-                 30    60   255;,... % blue    5.49, .167/.121
-                 80    50   160;,... % purple  5.22, .213/.135
+TargetColors  = [ 0   255     0;... % green   22.3, .186/.670
+                150   150    10;... % yellow  22.6, .340/.545
+                255     0     0;... % red     6.64, .621/.322
+                190     0   190;... % magenta 6.32, .314/.131
+                 30    60   255;... % blue    5.49, .167/.121
+                 80    50   160;... % purple  5.22, .213/.135
                 255   255   255];    % white   29.7, .265/.329, black   1.02, .320/.334
 
 targetFeedbackCols = [];
@@ -119,7 +119,7 @@ maxZ = 10;
 %% Input
 
 ExpNum  = 2;
-dirname = ['Results/RunMirrored/'];
+dirname = 'Results/RunMirrored/';
 if ExpMode > 0
     pwdir = 'C:\Documents and Settings\Maryam\My Documents\MATLAB\Whac-a-mole';
     cd(pwdir);
@@ -190,8 +190,7 @@ woff = Screen('OpenOffScreenWindow',window,[0 0 0 0], [ScrRes(1)/2 0 ScrRes(1) S
 InitializeTextPref(woff,16,'Helvetica',1);
 
 woff1 = Screen('OpenOffScreenWindow',window,[0 0 0 0], [0 0 HalfScrRes]);
-woff_fb1 = Screen('OpenOffScreenWindow',window,[0 0 0 0], [0 0 HalfScrRes]);
-woff_fb2 = Screen('OpenOffScreenWindow',window,[0 0 0 0], [0 0 HalfScrRes]);
+woff2 = Screen('OpenOffScreenWindow',window,[0 0 0 0], [0 0 HalfScrRes]);
 
 %% Welcome/Instructions
 tSize=Screen('TextSize',woff,20);
@@ -211,7 +210,7 @@ Screen('DrawLine',woff,[255 255 255], 20, tgtHalf+100, 250, tgtHalf+100);
 for moleTypeNum = 1:6
     myPts = OutComePlayers(1,moleTypeNum);
     myOffset = 100+moleTypeNum*TargetSize;
-    DrawText(woff,{[num2str(myPts)]},{PointColor(myPts+2,:)},50,myOffset,0,0);
+    DrawText(woff,{num2str(myPts)},{PointColor(myPts+2,:)},50,myOffset,0,0);
     Screen('FillOval',woff,TargetColors(moleTypeNum,:),[iconLEdge myOffset-tgtHalf iconREdge myOffset+tgtHalf]);
     Screen('DrawLine',woff,[255 255 255], 20, tgtHalf+myOffset, 250, tgtHalf+myOffset);
 end
@@ -302,24 +301,34 @@ for TrlNum = startTrialNum:endTrialNum
     TargetCoverageMap   = cell(1,2);
     TargetCoverageMap{1}= zeros(ScrRes(2),ScrRes(1));
     TargetCoverageMap{2}= zeros(ScrRes(2),ScrRes(1));
+    TempCoverageMap     = cell(1,2);
+    TempCoverageMap{1}  = zeros(ScrRes(2),ScrRes(1));
+    TempCoverageMap{2}  = zeros(ScrRes(2),ScrRes(1));
     TrackList           = cell(1,3);
     TrackList{1}        = NaN(3,TrialLength*RecordHz);
     TrackList{2}        = NaN(3,TrialLength*RecordHz);
     TrackList{3}        = NaN(1,TrialLength*RecordHz);
     
+    PlayerLeftIdx   = (SwitchSides/2)+1.5; % NOTE THAT PLAYER LEFT DOES NOT HAVE TO BE PLAYER 1 (only at the beginning and after each 12 trials)
+    PlayerRightIdx  = mod((SwitchSides/2)+1.5,2)+1;
+    
     rng('shuffle');
     for i = 1:MaxTargetsOnScreen
-         TrialList{PlayerLeftIdx}(i,:)     = [i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets))];
-         TrialList{PlayerRightIdx}(i,:)    = [i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets))];
+         TrialList{PlayerLeftIdx}(i,:)  = i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets));
+         TrialList{PlayerRightIdx}(i,:) = i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets));
+         TrialList{PlayerLeftIdx}(i,:) = TrialList{PlayerRightIdx}(i,:); %%%%Alpha over Beta%%%%
          
+         tempList    = cell(1,2);
          tempList{1} = [];
          templist{2} = [];
          for j = 1:ceil(nTargetOnsets/8)
-            tempList{1} = [tempList Shuffle([1 2 3 4 5 6 1 2])];
-            tempList{2} = [tempList Shuffle([1 2 3 4 5 6 1 2])];
+            tempList{PlayerLeftIdx}  = [tempList{1} Shuffle([1 2 3 4 5 6 1 2])];
+            tempList{PlayerRightIdx} = [tempList{2} Shuffle([1 2 3 4 5 6 1 2])];
+            tempList{PlayerLeftIdx} = tempList{PlayerRightIdx}; %%%%Alpha over Beta%%%%
+            
          end
-         MoleTypeList{1}(i,:)  = tempList{1}(1:nTargetOnsets);
-         MoleTypeList{2}(i,:)  = tempList{2}(1:nTargetOnsets);
+         MoleTypeList{PlayerLeftIdx}(i,:)  = tempList{PlayerLeftIdx}(1:nTargetOnsets);
+         MoleTypeList{PlayerRightIdx}(i,:) = tempList{PlayerRightIdx}(1:nTargetOnsets);
     end
     
     rng('shuffle');
@@ -327,32 +336,39 @@ for TrlNum = startTrialNum:endTrialNum
 
     for j = 1:nTargetOnsets
         if j > nHistoryTargetOverlapCheck
-            TargetCoverageMap = TargetCoverageMap-1;
-            TargetCoverageMap(TargetCoverageMap(:)<0) = 0;
+            TargetCoverageMap{PlayerLeftIdx} = TargetCoverageMap{PlayerLeftIdx}-1;
+            TargetCoverageMap{PlayerLeftIdx}(TargetCoverageMap{PlayerLeftIdx}(:)<0) = 0;
+            TargetCoverageMap{PlayerRightIdx} = TargetCoverageMap{PlayerRightIdx}-1;
+            TargetCoverageMap{PlayerRightIdx}(TargetCoverageMap{PlayerRightIdx}(:)<0) = 0;
             TargetCoverageNum = nHistoryTargetOverlapCheck;
         else
             TargetCoverageNum = j;
         end
         
         for i = 1:MaxTargetsOnScreen
-            LocationListY{PlayerLeftIdx}(i,j)  = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));     
+            LocationListY{PlayerLeftIdx}(i,j)  = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
             LocationListY{PlayerRightIdx}(i,j) = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
-            LocationListX{PlayerLeftIdx}(i,j)  = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));  
-            LocationListX{PlayerRightIdx}(i,j) = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));            
-            TempCoverageMap{PlayerLeftIdx}     = TargetCoverageMap(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2);
-            TempCoverageMap{PlayerRightIdx}    = TargetCoverageMap(LocationListY{PlayerRightIdx}(i,j)-TargetSize/2:LocationListY{PlayerRightIdx}(i,j)+TargetSize/2,LocationListX{PlayerRightIdx}(i,j)-TargetSize/2:LocationListX{PlayerRightIdx}(i,j)+TargetSize/2);
-            while ( sum(TempCoverageMap(:))>0 ) %%%%%%%%%%%%%%%%QUESTION FOR SASEN%%%%%%%%%%%
+            LocationListX{PlayerLeftIdx}(i,j)  = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));
+            LocationListX{PlayerRightIdx}(i,j) = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));
+            TempCoverageMap{PlayerLeftIdx}     = TargetCoverageMap{PlayerLeftIdx}(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2);
+            TempCoverageMap{PlayerRightIdx}    = TargetCoverageMap{PlayerRightIdx}(LocationListY{PlayerRightIdx}(i,j)-TargetSize/2:LocationListY{PlayerRightIdx}(i,j)+TargetSize/2,LocationListX{PlayerRightIdx}(i,j)-TargetSize/2:LocationListX{PlayerRightIdx}(i,j)+TargetSize/2);
+            while ( sum(TempCoverageMap{PlayerLeftIdx}(:))>0 )
                 LocationListY{PlayerLeftIdx}(i,j)  = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
-                LocationListY{PlayerRightIdx}(i,j) = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
                 LocationListX{PlayerLeftIdx}(i,j)  = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));     
+                TempCoverageMap{PlayerLeftIdx}     = TargetCoverageMap{PlayerLeftIdx}(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2);
+            end
+            while ( sum(TempCoverageMap{PlayerRightIdx}(:))>0 )
+                LocationListY{PlayerRightIdx}(i,j) = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));   
                 LocationListX{PlayerRightIdx}(i,j) = round(TargetSize+(HalfScrRes(1)-2*TargetSize)*rand(1,1));                
-                TempCoverageMap{PlayerLeftIdx}     = TargetCoverageMap(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2);
-                TempCoverageMap{PlayerRightIdx}    = TargetCoverageMap(LocationListY{PlayerRightIdx}(i,j)-TargetSize/2:LocationListY{PlayerRightIdx}(i,j)+TargetSize/2,LocationListX{PlayerRightIdx}(i,j)-TargetSize/2:LocationListX{PlayerRightIdx}(i,j)+TargetSize/2);
-            end                
-            TargetCoverageMap{PlayerLeftIdx}(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2) = TargetCoverageMap(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2)+TargetCoverageNum;
+                TempCoverageMap{PlayerRightIdx}    = TargetCoverageMap{PlayerRightIdx}(LocationListY{PlayerRightIdx}(i,j)-TargetSize/2:LocationListY{PlayerRightIdx}(i,j)+TargetSize/2,LocationListX{PlayerRightIdx}(i,j)-TargetSize/2:LocationListX{PlayerRightIdx}(i,j)+TargetSize/2);
+            end
+            TargetCoverageMap{PlayerLeftIdx}(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2) = TargetCoverageMap{PlayerLeftIdx}(LocationListY{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListY{PlayerLeftIdx}(i,j)+TargetSize/2,LocationListX{PlayerLeftIdx}(i,j)-TargetSize/2:LocationListX{PlayerLeftIdx}(i,j)+TargetSize/2)+TargetCoverageNum;
             TargetCoverageMap{PlayerRightIdx}(LocationListY{PlayerRightIdx}(i,j)-TargetSize/2:LocationListY{PlayerRightIdx}(i,j)+TargetSize/2,LocationListX{PlayerRightIdx}(i,j)-TargetSize/2:LocationListX{PlayerRightIdx}(i,j)+TargetSize/2) = TargetCoverageMap{PlayerRightIdx}(LocationListY{PlayerRightIdx}(i,j)-TargetSize/2:LocationListY{PlayerRightIdx}(i,j)+TargetSize/2,LocationListX{PlayerRightIdx}(i,j)-TargetSize/2:LocationListX{PlayerRightIdx}(i,j)+TargetSize/2)+TargetCoverageNum;
         end        
     end
+    
+    LocationListX{PlayerLeftIdx}=LocationListX{PlayerRightIdx}; %%%%Alpha over Beta%%%%
+    LocationListY{PlayerLeftIdx}=LocationListY{PlayerRightIdx}; %%%%Alpha over Beta%%%%
     
     for i = 3:-1:1
         Text = {'',...
@@ -378,9 +394,6 @@ for TrlNum = startTrialNum:endTrialNum
     end
     trackedNow = GetSecs;
     
-    PlayerLeftIdx   = (SwitchSides/2)+1.5; % NOTE THAT PLAYER LEFT DOES NOT HAVE TO BE PLAYER 1 (only at the beginning and after each 12 trials)
-    PlayerRightIdx  = mod((SwitchSides/2)+1.5,2)+1;
-    
     TimeStampTrackerLeft    = data(2,1)-1;
     TimeStampTrackerRight   = data(2,2)-1;
     
@@ -390,63 +403,65 @@ for TrlNum = startTrialNum:endTrialNum
     
     tStart          = GetSecs;
     dataCount       = 0;
-    targetNum       = ones(1,MaxTargetsOnScreen);
-    targetHit       = zeros(1,MaxTargetsOnScreen);
-    playerHit       = zeros(1,MaxTargetsOnScreen);
-    targetShown     = zeros(1,MaxTargetsOnScreen);
+    targetNum       = ones(2,MaxTargetsOnScreen);
+    targetHit       = zeros(2,MaxTargetsOnScreen);
+    playerHit       = zeros(2,MaxTargetsOnScreen);
+    targetShown     = zeros(2,MaxTargetsOnScreen);
     while ( (GetSecs-tStart < TrialLength) && ~KbCheck)
         
         Screen('FillRect', window, BGCol); % draw background
         Screen('FillRect', woff1, [0 0 0 0]); % clear bg for pane 1
-        Screen('FrameRect',woff1);
-        Screen('FillRect', woff1, [0 0 0 0]); % clear bg for feedback pane 1
         Screen('FillRect', woff2, [0 0 0 0]); % clear bg for feedback pane 2
+        Screen('FrameRect',woff1);
+        Screen('FrameRect',woff2);
         
         tFrame = GetSecs;
         while GetSecs-tFrame < (1/ScrHz)
             
             % present or remove targets from screen
             for i = 1:MaxTargetsOnScreen
-                TimeDifference = round((((GetSecs-tStart)*1000)-TrialList(i,targetNum(i))));
+                tElapsed = (GetSecs-tStart)*1000;
+                TimeDiffL = round((tElapsed-TrialList{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i))));
+                TimeDiffR = round((tElapsed-TrialList{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i))));
 
                 % select next target for presentation after a target hit
-                if targetHit(i) > 0 
-                    HitList_t(i,targetNum(i)) = GetSecs-tStart;
-                    HitList_p(i,targetNum(i)) = playerHit(i);
-                    targetNum(i) = targetNum(i)+1;
-                    targetHit(i) = 0;
-                    playerHit(i) = 0;
-                    targetShown(i) = 0;
-                elseif TimeDifference >= TargetPresTime % target is missed
-                    targetNum(i) = targetNum(i)+1;
-                    targetShown(i) = 0;
-                elseif TimeDifference > 0 && TimeDifference < TargetPresTime % show target
-                    tempColor = TargetColors(MoleTypeList(i,targetNum(i)),:);
-                    tempColor = round(tempColor.*((TargetPresTime/2)-abs(TimeDifference-(TargetPresTime/2)))/(TargetPresTime/2));
-                    Screen('FillOval', woff1, tempColor, [LocationListX{PlayerLeftIdx}(i,targetNum(i))-TargetSize/2 LocationListY{PlayerLeftIdx}(i,targetNum(i))-TargetSize/2 LocationListX{PlayerLeftIdx}(i,targetNum(i))+TargetSize/2 LocationListY{PlayerLeftIdx}(i,targetNum(i))+TargetSize/2], TargetSize+2);
-                    targetShown(i) = 1;
+                if targetHit(PlayerLeftIdx,i) > 0 
+                    HitList_t{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i)) = tElapsed/1000;
+                    HitList_p{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i)) = playerHit(PlayerLeftIdx,i);
+                    targetNum(PlayerLeftIdx,i)   = targetNum(PlayerLeftIdx,i)+1;
+                    targetHit(PlayerLeftIdx,i)   = 0;
+                    playerHit(PlayerLeftIdx,i)   = 0;
+                    targetShown(PlayerLeftIdx,i) = 0;
+                elseif TimeDiffL >= TargetPresTime % target is missed
+                    targetNum(PlayerLeftIdx,i)   = targetNum(PlayerLeftIdx,i)+1;
+                    targetShown(PlayerLeftIdx,i) = 0;
+                elseif TimeDiffL > 0 && TimeDiffL < TargetPresTime % show target
+                    tempColor = TargetColors(MoleTypeList{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i)),:);
+                    tempColor = round(tempColor.*((TargetPresTime/2)-abs(TimeDiffL-(TargetPresTime/2)))/(TargetPresTime/2));
+                    Screen('FrameRect', woff1, tempColor, [LocationListX{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i))-TargetSize/2 LocationListY{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i))-TargetSize/2 LocationListX{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i))+TargetSize/2 LocationListY{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i))+TargetSize/2], TargetSize+2);
+                    targetShown(PlayerLeftIdx,i) = 1;
                 else
-                    targetShown(i) = 0;
+                    targetShown(PlayerLeftIdx,i) = 0;
                 end
                 
                 % select next target for presentation after a target hit
-                if targetHit(i) > 0 
-                    HitList_t(i,targetNum(i)) = GetSecs-tStart;
-                    HitList_p(i,targetNum(i)) = playerHit(i);
-                    targetNum(i) = targetNum(i)+1;
-                    targetHit(i) = 0;
-                    playerHit(i) = 0;
-                    targetShown(i) = 0;
-                elseif TimeDifference >= TargetPresTime % target is missed
-                    targetNum(i) = targetNum(i)+1;
-                    targetShown(i) = 0;
-                elseif TimeDifference > 0 && TimeDifference < TargetPresTime % show target
-                    tempColor = TargetColors(MoleTypeList(i,targetNum(i)),:);
-                    tempColor = round(tempColor.*((TargetPresTime/2)-abs(TimeDifference-(TargetPresTime/2)))/(TargetPresTime/2));
-                    Screen('FillOval', woff2, tempColor, [LocationListX{PlayerRightIdx}(i,targetNum(i))-TargetSize/2 LocationListY{PlayerRightIdx}(i,targetNum(i))-TargetSize/2 LocationListX{PlayerRightIdx}(i,targetNum(i))+TargetSize/2 LocationListY{PlayerRightIdx}(i,targetNum(i))+TargetSize/2], TargetSize+2);
-                    targetShown(i) = 1;
+                if targetHit(PlayerRightIdx,i) > 0 
+                    HitList_t{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i)) = tElapsed/1000;
+                    HitList_p{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i)) = playerHit(PlayerRightIdx,i);
+                    targetNum(PlayerRightIdx,i) = targetNum(PlayerRightIdx,i)+1;
+                    targetHit(PlayerRightIdx,i)   = 0;
+                    playerHit(PlayerRightIdx,i)   = 0;
+                    targetShown(PlayerRightIdx,i) = 0;
+                elseif TimeDiffR >= TargetPresTime % target is missed
+                    targetNum(PlayerRightIdx,i) = targetNum(PlayerRightIdx,i)+1;
+                    targetShown(PlayerRightIdx,i) = 0;
+                elseif TimeDiffR > 0 && TimeDiffR < TargetPresTime % show target
+                    tempColor = TargetColors(MoleTypeList{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i)),:);
+                    tempColor = round(tempColor.*((TargetPresTime/2)-abs(TimeDiffR-(TargetPresTime/2)))/(TargetPresTime/2));
+                    Screen('FrameOval', woff2, tempColor, [LocationListX{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i))-TargetSize/2 LocationListY{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i))-TargetSize/2 LocationListX{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i))+TargetSize/2 LocationListY{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i))+TargetSize/2], TargetSize+2);
+                    targetShown(PlayerRightIdx,i) = 1;
                 else
-                    targetShown(i) = 0;
+                    targetShown(PlayerRightIdx,i) = 0;
                 end
 
             end
@@ -490,57 +505,42 @@ for TrlNum = startTrialNum:endTrialNum
                 
                 % check whether target is hit
                 for i = 1:MaxTargetsOnScreen
-                    if ( targetShown(i) == 1 ) % only if target is really presented
+                    LeftPlayerHit=0;
+                    RightPlayerHit=0;
+                    if ( targetShown(PlayerLeftIdx,i) == 1 ) % only if target is really presented
                         %%% TODO checkout this maxZ strategy!!!
-                        LeftPlayerHit   = zPos1 < maxZ & LocationListX{PlayerLeftIdx}(i,targetNum(i)) > xPos1-HitSize/2 & LocationListX{PlayerLeftIdx}(i,targetNum(i)) < xPos1+HitSize/2 & LocationListY{PlayerLeftIdx}(i,targetNum(i)) > yPos1-HitSize/2 & LocationListY{PlayerLeftIdx}(i,targetNum(i)) < yPos1+HitSize/2;
-                        RightPlayerHit  = zPos2 < maxZ & LocationListX{PlayerRightIdx}(i,targetNum(i)) > xPos2-HitSize/2 & LocationListX{PlayerRightIdx}(i,targetNum(i)) < xPos2+HitSize/2 & LocationListY{PlayerRightIdx}(i,targetNum(i)) > yPos2-HitSize/2 & LocationListY{PlayerRightIdx}(i,targetNum(i)) < yPos2+HitSize/2;
-                        
-                        if ( LeftPlayerHit && RightPlayerHit )
-                            if ( zPos1 < zPos2 )
-                                targetHit(i) = 1; % 1 for player left, 2 for player right, 0 if not hit
-                                playerHit(i) = PlayerLeftIdx;
-                            elseif ( zPos1 > zPos2 )
-                                targetHit(i) = 2; % 1 for player left, 2 for player right, 0 if not hit
-                                playerHit(i) = PlayerRightIdx;
-                            else    % randomly assign the point to someone
-                                targetHit(i) = round(rand(1,1))+1;
-                                if ( targetHit(i) == 1 )
-                                    playerHit(i) = PlayerLeftIdx;
-                                else
-                                    playerHit(i) = PlayerRightIdx;
-                                end
-                            end
-                            targetFeedback(1:2,end+1) = [LocationListX(i,targetNum(i)) LocationListY(i,targetNum(i))];
+                        LeftPlayerHit   = zPos1 < maxZ & LocationListX{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i)) > xPos1-HitSize/2 & LocationListX{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i)) < xPos1+HitSize/2 & LocationListY{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i)) > yPos1-HitSize/2 & LocationListY{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i)) < yPos1+HitSize/2;
+                    end
+                    if ( targetShown(PlayerRightIdx,i)== 1 )
+                        RightPlayerHit  = zPos2 < maxZ & LocationListX{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i)) > xPos2-HitSize/2 & LocationListX{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i)) < xPos2+HitSize/2 & LocationListY{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i)) > yPos2-HitSize/2 & LocationListY{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i)) < yPos2+HitSize/2;
+                    end
+                        if ( LeftPlayerHit )
+                            targetHit(PlayerLeftIdx,i) = 1; % 1 for player left, 2 for player right, 0 if not hit
+                            playerHit(PlayerLeftIdx,i) = PlayerLeftIdx;
+                            targetFeedback(1:2,end+1) = [LocationListX{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i)) LocationListY{PlayerLeftIdx}(i,targetNum(PlayerLeftIdx,i))];
                             targetFeedback(3,end) = GetSecs;
-                            targetFeedback(4,end) = targetHit(i);
-                            targetFeedback(5,end) = targetNum(i);
-                            targetFeedback(6,end) = i;
-                        elseif ( LeftPlayerHit )
-                            targetHit(i) = 1; % 1 for player left, 2 for player right, 0 if not hit
-                            playerHit(i) = PlayerLeftIdx;
-                            targetFeedback(1:2,end+1) = [LocationListX{PlayerLeftIdx}(i,targetNum(i)) LocationListY{PlayerLeftIdx}(i,targetNum(i))];
-                            targetFeedback(3,end) = GetSecs;
-                            targetFeedback(4,end) = targetHit(i);
-                            targetFeedback(5,end) = targetNum(i);
-                            targetFeedback(6,end) = i;
-                        elseif ( RightPlayerHit )
-                            targetHit(i) = 2; % 1 for player left, 2 for player right, 0 if not hit
-                            playerHit(i) = PlayerRightIdx;
-                            targetFeedback(1:2,end+1) = [LocationListX{PlayerRightIdx}(i,targetNum(i)) LocationListY{PlayerRightIdx}(i,targetNum(i))];
-                            targetFeedback(3,end) = GetSecs;
-                            targetFeedback(4,end) = targetHit(i);
-                            targetFeedback(5,end) = targetNum(i);
+                            targetFeedback(4,end) = targetHit(PlayerLeftIdx,i);
+                            targetFeedback(5,end) = targetNum(PlayerLeftIdx,i);
                             targetFeedback(6,end) = i;
                         else
-                            targetHit(i) = 0;
+                            targetHit(PlayerLeftIdx,i) = 0;
                         end
-                        
+                        if ( RightPlayerHit )
+                            targetHit(PlayerRightIdx,i) = 2; % 1 for player left, 2 for player right, 0 if not hit
+                            playerHit(PlayerRightIdx,i) = PlayerRightIdx;
+                            targetFeedback(1:2,end+1) = [LocationListX{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i)) LocationListY{PlayerRightIdx}(i,targetNum(PlayerRightIdx,i))];
+                            targetFeedback(3,end) = GetSecs;
+                            targetFeedback(4,end) = targetHit(PlayerRightIdx,i);
+                            targetFeedback(5,end) = targetNum(PlayerRightIdx,i);
+                            targetFeedback(6,end) = i;
+                        else
+                            targetHit(PlayerRightIdx,i) = 0;
+                        end
                         % if target is hit, change score
                         if ( targetHit(i) > 0 ) %%%%%%%%%%%%%%%%%ASK SASEN%%%%%%%%%%%%%%%%
                             ScorePlayers(playerHit(i),TrlNum) = ScorePlayers(playerHit(i),TrlNum)+OutComePlayers(1,MoleTypeList(i,targetNum(i)));
                             ScorePlayers(mod(playerHit(i),2)+1,TrlNum) = ScorePlayers(mod(playerHit(i),2)+1,TrlNum)+OutComePlayers(2,MoleTypeList(i,targetNum(i)));
                         end
-                    end
                 end
             else
                 xPos1orig=0; yPos1orig=0; xPos2orig=0; yPos2orig=0;
@@ -588,11 +588,10 @@ for TrlNum = startTrialNum:endTrialNum
                 i = i + 1;
             end
         end
-    	% draw feedback panes directly onto projected window
+    	% draw feedback panes & games directly onto projected window
         DrawMirrored(window, woff1, woff2, ScrRes);
         
         % show updated screen
-        DrawMirrored(window, woff1, woff1, ScrRes);
         vbl = Screen('Flip', window, vbl+0.5*(1/ScrHz), [], 1); 
     end  %%% timepoints loop (for M timepoints within a trial)
 

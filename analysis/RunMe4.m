@@ -137,7 +137,14 @@ if ( CreateData )
 %         disp(SwitchedCondition)
         
         for TrlNum = 1:maxTrialNums(s)
-            MatData = load(['../Results/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+            if exist(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+                MatData = load(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+            elseif exist(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithoutSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+                MatData = load(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithoutSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+            elseif exist(['/Users/eshayer/Desktop/Whac-a-mole/Results/IG5/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+                MatData = load(['/Users/eshayer/Desktop/Whac-a-mole/Results/IG5/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+            else MatData = load(['/Users/eshayer/Desktop/Whac-a-mole/Results/SwitchedColors/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
+            end
             TrialIncludedVect = (MatData.TrialList/1000)<MatData.TrialLength; % to speed the code, remove data of targets that were not present because trial was over
             
             % check for variance in X and Y across pairs
@@ -280,32 +287,32 @@ if ( CreateData )
                             moveOnset = LastPositive+find(diff(TempData(3,241+LastPositive:241+HitMoment))<-2,1,'first');
                             moveOnsetMiss = LastPositiveMiss+find(diff(TempDataMiss(3,241+LastPositiveMiss:241+HitMomentMiss))<-2,1,'first');
                         
-%                             h = figure();
-%                             subplot(2,1,1), plot(TempData(3,241:241+HitMoment),'r')
-%                             hold on
-%                             plot(moveOnset,TempData(3,241+moveOnset),'go')
-%                             
-%                             subplot(2,1,2), plot(diff(TempData(3,241:241+HitMoment)),'r')
-%                             hold on
-%                             line([1 HitMoment],[-2 -2]);
-%                             drawnow;
-%                             WaitSecs(0.5);
-%                             WaitForKeyPress({'SPACE'},[]);
-%                             close all
-%                         
-%                             figure();
-%                             subplot(2,1,1)
-%                             plot([-240:size(TempData,2)-241].*(1/240),TempData(3,:)*zPixel)
-%                             hold on
-%                             line([0 .625 1.25],[-2 6 -2])
-%                             line([0 .625 1.25]-242*(1/240),[-2 6 -2])
-%                             xlim([-.5 1.5]);
-%                             
-%                             subplot(2,1,2)
-%                             plot([-240:size(TempData,2)-242].*(1/240),abs(diff(TempData(3,:)*zPixel)))
-%                             xlim([-.5 1.5]);
-%                             hold on
-%                             line([-.5 1.5],[2 2]*zPixel)
+                            h = figure();
+                            subplot(2,1,1), plot(TempData(3,241:241+HitMoment),'r')
+                            hold on
+                            plot(moveOnset,TempData(3,241+moveOnset),'go')
+                            
+                            subplot(2,1,2), plot(diff(TempData(3,241:241+HitMoment)),'r')
+                            hold on
+                            line([1 HitMoment],[-2 -2]);
+                            drawnow;
+                            WaitSecs(0.5);
+                            WaitForKeyPress({'SPACE'},[]);
+                            close all
+                        
+                            figure();
+                            subplot(2,1,1)
+                            plot([-240:size(TempData,2)-241].*(1/240),TempData(3,:)*zPixel)
+                            hold on
+                            line([0 .625 1.25],[-2 6 -2])
+                            line([0 .625 1.25]-242*(1/240),[-2 6 -2])
+                            xlim([-.5 1.5]);
+                            
+                            subplot(2,1,2)
+                            plot([-240:size(TempData,2)-242].*(1/240),abs(diff(TempData(3,:)*zPixel)))
+                            xlim([-.5 1.5]);
+                            hold on
+                            line([-.5 1.5],[2 2]*zPixel)
                             
                             if ( moveOnset ) % there is no moveOnset if the player is already near the target (but just missed it by a couple pixels and then just moves over the screen towards the target)
                                 
@@ -859,15 +866,15 @@ DataMatrixPerPlayer(31,firstSubs) = nanmean(mimicryScore);
 
 DataMatrixPerPlayer(31,secondSubs) = nanmean(mimicryScore);
 
-% correlation between mimicry and score
-% figure(99);
-% subplot(2,2,1);
-% plot(nanmean([DataMatrixPerPlayer(9,firstSubs); DataMatrixPerPlayer(9,secondSubs);])',nanmean([DataMatrixPerPlayer(23,firstSubs); DataMatrixPerPlayer(23,secondSubs);])','ro')
-% [r,p] = corr(nanmean([DataMatrixPerPlayer(9,firstSubs); DataMatrixPerPlayer(9,secondSubs);])',nanmean([DataMatrixPerPlayer(23,firstSubs); DataMatrixPerPlayer(23,secondSubs);])','type','spearman')
-% 
-% subplot(2,2,2);
-% plot(DataMatrixPerPlayer(9,:)',DataMatrixPerPlayer(23,:)','ro')
-% [r,p] = corr(DataMatrixPerPlayer(9,:)',DataMatrixPerPlayer(23,:)','type','spearman')
+correlation between mimicry and score
+figure(99);
+subplot(2,2,1);
+plot(nanmean([DataMatrixPerPlayer(9,firstSubs); DataMatrixPerPlayer(9,secondSubs);])',nanmean([DataMatrixPerPlayer(23,firstSubs); DataMatrixPerPlayer(23,secondSubs);])','ro')
+[r,p] = corr(nanmean([DataMatrixPerPlayer(9,firstSubs); DataMatrixPerPlayer(9,secondSubs);])',nanmean([DataMatrixPerPlayer(23,firstSubs); DataMatrixPerPlayer(23,secondSubs);])','type','spearman')
+
+subplot(2,2,2);
+plot(DataMatrixPerPlayer(9,:)',DataMatrixPerPlayer(23,:)','ro')
+[r,p] = corr(DataMatrixPerPlayer(9,:)',DataMatrixPerPlayer(23,:)','type','spearman')
 
 
 break
