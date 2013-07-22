@@ -41,9 +41,10 @@ else   % do a new calibration for this sensor/player/comment combination
         Screen('FillRect', window, [0 0 0 0]); % draw background
         Screen('FillOval', window, [255 0 0], CenterSq(Corners(i,1),Corners(i,2),10));
         Screen('Flip', window);
-        WaitSecs(1);
-        [~, ~, ~]   = ReadPnoRTAllML_ver4(5);
-
+        for q=1:10
+            WaitSecs(.25);
+            [~, ~, ~]   = ReadPnoRTAllML_ver4(5);
+        end
         dataCount = 0;
         tStart = GetSecs;
         while (GetSecs-tStart < 3)
@@ -62,9 +63,13 @@ else   % do a new calibration for this sensor/player/comment combination
     tracker(0);  % turn tracker off
     Screen CloseAll;
 
-    xmu = nanmean(tempDataX,2);
-    ymu = nanmean(tempDataY,2);
-    zmu = nanmean(tempDataZ,2);
+    subplot(3,1,1),plot(tempDataX');
+    subplot(3,1,2),plot(tempDataY');
+    subplot(3,1,3),plot(tempDataZ');
+    
+    xmu = nanmean(tempDataX(:,end-Hz:end),2);
+    ymu = nanmean(tempDataY(:,end-Hz:end),2);
+    zmu = nanmean(tempDataZ(:,end-Hz:end),2);
 
     calcorners(:,:,1) = reshape(xmu,3,3);
     calcorners(:,:,2) = reshape(ymu,3,3);

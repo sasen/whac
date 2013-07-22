@@ -80,7 +80,7 @@ targetFeedbackCols(2,:,5) = [0 255 0];
 targetFeedbackCols(1,:,6) = [255 0 0];
 targetFeedbackCols(2,:,6) = [255 0 0];
 
-maxZ = 10;
+maxZ = 0.3;
  
 %% Input
 
@@ -127,15 +127,18 @@ if ( startTrialNum > 1 )
     ScorePlayers(:,startTrialNum:end)  = 0;
 end
 
-%% load or perform calibration
-LeftCal = cell(1,2);
-RightCal = cell(1,2);
-LeftFit = cell(1,2);
-RightFit = cell(1,2);
-[LeftCal{1}, LeftFit{1}]   = CalibWAM(1,pname1,ScrRes);
-[RightCal{2}, RightFit{2}] = CalibWAM(2,pname2,ScrRes);
-[LeftCal{2}, LeftFit{2}]   = CalibWAM(1,pname2,ScrRes);
-[RightCal{1}, RightFit{1}] = CalibWAM(2,pname1,ScrRes);
+% %% load or perform calibration
+% LeftCal = cell(1,2);
+% RightCal = cell(1,2);
+% LeftFit = cell(1,2);
+% RightFit = cell(1,2);
+% [LeftCal{1}, LeftFit{1}]   = CalibWAM(1,pname1,ScrRes);
+% [RightCal{2}, RightFit{2}] = CalibWAM(2,pname2,ScrRes);
+% [LeftCal{2}, LeftFit{2}]   = CalibWAM(1,pname2,ScrRes);
+% [RightCal{1}, RightFit{1}] = CalibWAM(2,pname1,ScrRes);
+
+[T_SB1, in2px] = findrot(1,'all');
+[T_SB2, ~]     = findrot(2,'all');
 
 
 %% open screens
@@ -380,8 +383,8 @@ for TrlNum = startTrialNum:nMaxTrials
 
             if ( IsTrackerPacketOK(data, bytes_read) )   % don't process invalid data
                 dataCount = dataCount + 1;
-                [xPos1, yPos1, zPos1] = TransformSensorData(data(:,1),LeftCal{PlayerLeftIdx},ScrRes,LeftFit{PlayerLeftIdx});
-                [xPos2, yPos2, zPos2] = TransformSensorData(data(:,2),RightCal{PlayerRightIdx},ScrRes,RightFit{PlayerRightIdx});
+                [xPos1, yPos1, zPos1] = TransformSensorData(data(:,1), T_SB1, in2px);
+                [xPos2, yPos2, zPos2] = TransformSensorData(data(:,2), T_SB2, in2px);
                 TrackList{PlayerLeftIdx}(:,dataCount)  = [xPos1; yPos1; zPos1];
                 TrackList{PlayerRightIdx}(:,dataCount) = [xPos2; yPos2; zPos2];
                 TrackList{3}(1,dataCount)              = data(2,1)-TimeStampTrackerLeft;
@@ -548,8 +551,8 @@ for TrlNum = startTrialNum:nMaxTrials
         continueHit = 0;
         while continueHit==0
             data = tracker(5,RecordHz); % check for "next" button tap
-            [xPos1, yPos1, zPos1] = TransformSensorData(data(:,1),LeftCal{PlayerLeftIdx},ScrRes,LeftFit{PlayerLeftIdx});
-            [xPos2, yPos2, zPos2] = TransformSensorData(data(:,2),RightCal{PlayerRightIdx},ScrRes,RightFit{PlayerRightIdx});  
+            [xPos1, yPos1, zPos1] = TransformSensorData(data(:,1), T_SB1, in2px);
+            [xPos2, yPos2, zPos2] = TransformSensorData(data(:,2), T_SB2, in2px);
             if ( yPos1 < AreaOfInterest(4) & yPos1 > AreaOfInterest(2) & xPos1 > AreaOfInterest(1) & xPos1 < AreaOfInterest(3) & zPos1 < maxZ )
                 PlayerContinues(TrlNum) = PlayerLeftIdx;
                 continueHit = 1;
