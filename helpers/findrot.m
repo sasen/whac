@@ -28,6 +28,7 @@ base = load(['calmats/' playerID '_sensor' num2str(sensNum) 'base'],'calcorners'
 stick = load(['calmats/' playerID '_sensor' num2str(sensNum) 'stick'],'calcorners');
 PinB = [reshape(base.calcorners,9,3) ; reshape(stick.calcorners,9,3)]';  % now 3x18
 PinB_SO = PinB(:,1);  % vector in B frame to S frame Origin (inches)
+B0 = zeros(3,18);
 
 for i=1:3
    B0(i,:) = PinB(i,:) - PinB_SO(i);
@@ -39,11 +40,12 @@ end
 %    variables R_BS(3,3);
 %    minimize norm( R_BS*PinS - B0 , 2)
 % cvx_end
+
 R_BS = B0/PinS;
 
 R_SB = inv(R_BS);  % ideally, this would be R_BS', but it's not a perfect rot matrix
-T_BS = [R_BS PinB_SO; 0 0 0 1];
+%T_BS = [R_BS PinB_SO; 0 0 0 1];
 T_SB = [R_SB -R_SB*PinB_SO; 0 0 0 1];  % inv(T_BS)
 
-in2px = diag([1024/18.189 768/13.622 1 1]);
+in2px = diag([1024/18.189 768/13.661 1 1]);
 %Sest = in2px * T_SB*[PinB; ones(1,18)];

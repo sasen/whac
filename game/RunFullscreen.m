@@ -45,6 +45,7 @@ TargetSize                  = 40;           % target diameter [pixel]
 HitSize                     = 40;           % size of hit circle (if this circle touches the target, it is hit)
 FeedBackDuration            = 0.75;         % duration of the feedback rectangle presented after target is hit
 RecordHz                    = 200;          % at which speed should the tracker record?
+maxZ                        = 0.5;          % height in normalized inches
 
 nMaxTrials = sum(blockStructure);   % number of trials per experiment
 newBlockNums = cumsum([1 blockStructure]);
@@ -79,8 +80,6 @@ targetFeedbackCols(1,:,5) = [0 255 0];
 targetFeedbackCols(2,:,5) = [0 255 0];
 targetFeedbackCols(1,:,6) = [255 0 0];
 targetFeedbackCols(2,:,6) = [255 0 0];
-
-maxZ = 0.3;
  
 %% Input
 
@@ -137,8 +136,8 @@ end
 % [LeftCal{2}, LeftFit{2}]   = CalibWAM(1,pname2,ScrRes);
 % [RightCal{1}, RightFit{1}] = CalibWAM(2,pname1,ScrRes);
 
-[T_SB1, in2px] = findrot(1,'all');
-[T_SB2, ~]     = findrot(2,'all');
+[T_SB1, in2px] = findrot(1,'jul22');
+[T_SB2, ~]      = findrot(2,'jul22');
 
 
 %% open screens
@@ -472,13 +471,13 @@ for TrlNum = startTrialNum:nMaxTrials
             end
         end
 
-        % TEST DRAW OF POSITION
-%       Screen('FrameOval', window, [255 255 255], [xPos1-HitSize/2 yPos1-HitSize/2 xPos1+HitSize/2 yPos1+HitSize/2] );
-        Screen('FrameOval', window, [255 255 255], [xPos1-5 yPos1-5 xPos1+5 yPos1+5] );                
-%       Screen('FrameOval', window, [255 255 255], [xPos2-HitSize/2 yPos2-HitSize/2 xPos2+HitSize/2 yPos2+HitSize/2] );
-        Screen('FrameOval', window, [255 255 255], [xPos2-5 yPos2-5 xPos2+5 yPos2+5] );
-%       DrawText(window,{num2str(zPos1)},{[255 255 255]},20,25,0,0); %
-%       DrawText(window,{num2str(zPos2)},{[255 255 255]},20,125,0,0); %
+%         % TEST DRAW OF POSITION
+% %       Screen('FrameOval', window, [255 255 255], [xPos1-HitSize/2 yPos1-HitSize/2 xPos1+HitSize/2 yPos1+HitSize/2] );
+%        Screen('FrameOval', window, [255 255 255], [xPos1-5 yPos1-5 xPos1+5 yPos1+5] );                
+% %       Screen('FrameOval', window, [255 255 255], [xPos2-HitSize/2 yPos2-HitSize/2 xPos2+HitSize/2 yPos2+HitSize/2] );
+%        Screen('FrameOval', window, [255 255 255], [xPos2-5 yPos2-5 xPos2+5 yPos2+5] );
+% %       DrawText(window,{num2str(zPos1)},{[255 255 255]},20,25,0,0); %
+% %       DrawText(window,{num2str(zPos2)},{[255 255 255]},20,125,0,0); %
 
         % show updated screen
         vbl = Screen('Flip', window, vbl+0.5*(1/ScrHz), [], 1); 
@@ -551,8 +550,8 @@ for TrlNum = startTrialNum:nMaxTrials
         continueHit = 0;
         while continueHit==0
             data = tracker(5,RecordHz); % check for "next" button tap
-            [xPos1, yPos1, zPos1] = TransformSensorData(data(:,1), T_SB1, in2px);
-            [xPos2, yPos2, zPos2] = TransformSensorData(data(:,2), T_SB2, in2px);
+            [xPos1, yPos1, zPos1] = TransformSensorData(data(:,1),T_SB1, in2px);
+            [xPos2, yPos2, zPos2] = TransformSensorData(data(:,2),T_SB2, in2px);  
             if ( yPos1 < AreaOfInterest(4) & yPos1 > AreaOfInterest(2) & xPos1 > AreaOfInterest(1) & xPos1 < AreaOfInterest(3) & zPos1 < maxZ )
                 PlayerContinues(TrlNum) = PlayerLeftIdx;
                 continueHit = 1;
