@@ -1,4 +1,4 @@
-function RunMirrored(ExpMode)
+function RunSplit(ExpMode, ExpNum)
 % RUNMIRRORED  Run mirrored Whac-a-mole experiment
 %   Summer 2013 // Modified by Sasen
 %   eg:   RunMirrored(ExpMode);
@@ -16,8 +16,18 @@ function RunMirrored(ExpMode)
 switch nargin,
     case 0
         ExpMode        =  0; % 0 = test mode, 1 = real experiment mode
-        Screen('Preference', 'Verbosity', 1)
+        Screen('Preference', 'Verbosity', 1)        
 end
+
+switch ExpNum
+    case 2
+        dirname = 'Results/RunMirrored/';
+    case 3
+        dirname = 'Results/RunSplitgame/';
+    case 4
+        dirname = 'Results/RunDistractors/';
+end
+
 
 %% Screen Settings
 
@@ -70,8 +80,6 @@ TargetColors  = [ 0   255     0;... % green   22.3, .186/.670
 
 %% Input
 
-ExpNum  = 2;
-dirname = 'Results/RunMirrored/';
 if ExpMode > 0
     pwdir = 'C:\Documents and Settings\Maryam\My Documents\MATLAB\Whac-a-mole';
     cd(pwdir);
@@ -91,7 +99,6 @@ else
     pname2 = 'tt';
     ppname = [pname1 '_' pname2];    
     startTrialNum = 1;
-    ExpNum = 998;    
     Priority(1); %Why is this a different priority level? LOOK HERE
 end
 
@@ -141,11 +148,13 @@ fbArrowRect(2,:,6) = rect_arrowshaft;
 
 %% Open a half-size offscreen window for mirrored stuff
 HalfScrRes = [ScrRes(1)/2 ScrRes(2)];  % half-screens split along horizontal side
-woff = Screen('OpenOffScreenWindow',window,[0 0 0 0], [ScrRes(1)/2 0 ScrRes(1) ScrRes(2)]);
+woff = Screen('OpenOffScreenWindow',window,[0 0 0 0], [0 0 HalfScrRes]);
 InitializeTextPref(woff,16,'Helvetica',1);
 
 woff1 = Screen('OpenOffScreenWindow',window,[0 0 0 0], [0 0 HalfScrRes]);
 woff2 = Screen('OpenOffScreenWindow',window,[0 0 0 0], [0 0 HalfScrRes]);
+InitializeTextPref(woff1,16,'Helvetica',1);
+InitializeTextPref(woff2,16,'Helvetica',1);
 
 %% Welcome/Instructions
 tSize=Screen('TextSize',woff,20);
@@ -267,39 +276,42 @@ for TrlNum = startTrialNum:endTrialNum
     
     rng('shuffle');
     for i = 1:MaxTargetsOnScreen
-         TrialList{PlayerLeftIdx}(i,:)  = i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets));
-         TrialList{PlayerRightIdx}(i,:) = i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets));
-         TrialList{PlayerLeftIdx}(i,:) = TrialList{PlayerRightIdx}(i,:); %%%%Alpha over Beta%%%%
-         
-         tempList    = cell(1,2);
-         tempList{1} = [];
-         templist{2} = [];
-         for j = 1:ceil(nTargetOnsets/8)
-            tempList{PlayerLeftIdx}  = [tempList{1} Shuffle([1 2 3 4 5 6 1 2])];  % this is wrong
-            tempList{PlayerRightIdx} = [tempList{2} Shuffle([1 2 3 4 5 6 1 2])];
-            tempList{PlayerLeftIdx} = tempList{PlayerRightIdx}; %%%%Alpha over Beta%%%%
-            
+         TrialList{1}(i,:) = i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets));
+         TrialList{2}(i,:) = i*(mean(TargetIntervalTimeRange)/MaxTargetsOnScreen) + cumsum(TargetPresTime+TargetIntervalTimeRange(1)+(TargetIntervalTimeRange(2)-TargetIntervalTimeRange(1))*rand(1,nTargetOnsets));
+         if ExpNum==2
+             TrialList{2}(i,:) = TrialList{1}(i,:);
          end
-         MoleTypeList{PlayerLeftIdx}(i,:)  = tempList{PlayerLeftIdx}(1:nTargetOnsets);
-         MoleTypeList{PlayerRightIdx}(i,:) = tempList{PlayerRightIdx}(1:nTargetOnsets);
+         
+         tempList = cell(1,2);
+         for j = 1:ceil(nTargetOnsets/8)
+            if ExpNum == 4
+                tempList{1} = [tempList{1} Shuffle([1 2 3 4 5 6 1 2])];
+                tempList{2} = [tempList{2} Shuffle([3 4 3 4 5 6 5 6])];
+            else
+                tempList{1} = [tempList{1} Shuffle([1 2 3 4 5 6 1 2])];
+                tempList{2} = [tempList{2} Shuffle([1 2 3 4 5 6 1 2])];
+            end
+            if ExpNum ==2
+                tempList{2} = tempList{1};
+            end            
+         end
+         MoleTypeList{1}(i,:) = tempList{1}(1:nTargetOnsets);
+         MoleTypeList{2}(i,:) = tempList{2}(1:nTargetOnsets);
     end
     
     rng('shuffle');
     nHistoryTargetOverlapCheck = 4; % number of iterations back into history to check for overlapping targets
-
-    for j = 1:nTargetOnsets
-        if j > nHistoryTargetOverlapCheck
-            TargetCoverageMap{PlayerLeftIdx} = TargetCoverageMap{PlayerLeftIdx}-1;
-            TargetCoverageMap{PlayerLeftIdx}(TargetCoverageMap{PlayerLeftIdx}(:)<0) = 0;
-            TargetCoverageMap{PlayerRightIdx} = TargetCoverageMap{PlayerRightIdx}-1;
-            TargetCoverageMap{PlayerRightIdx}(TargetCoverageMap{PlayerRightIdx}(:)<0) = 0;
-            TargetCoverageNum = nHistoryTargetOverlapCheck;
-        else
-            TargetCoverageNum = j;
-        end
+    for p = 1:2  % player #... check through each player's Targets separately
+        for j = 1:nTargetOnsets
+            if j > nHistoryTargetOverlapCheck
+                TargetCoverageMap{p} = TargetCoverageMap{p}-1;
+                TargetCoverageMap{p}(TargetCoverageMap{p}(:)<0) = 0;
+                TargetCoverageNum = nHistoryTargetOverlapCheck;
+            else
+                TargetCoverageNum = j;
+            end
         
-        for i = 1:MaxTargetsOnScreen
-            for p = 1:2  % player #
+            for i = 1:MaxTargetsOnScreen
                 proposedY = round(TargetSize+(HalfScrRes(2)-2*TargetSize)*rand(1,1));
                 proposedYmin = proposedY - TargetSize/2;
                 proposedYmax = proposedY + TargetSize/2;
@@ -319,12 +331,14 @@ for TrlNum = startTrialNum:endTrialNum
                 TargetCoverageMap{p}(proposedYmin:proposedYmax,proposedXmin:proposedXmax) = TargetCoverageMap{p}(proposedYmin:proposedYmax,proposedXmin:proposedXmax)+TargetCoverageNum;
                 LocationListY{p}(i,j)  = proposedY;
                 LocationListX{p}(i,j)  = proposedX;
-            end
-        end        
-    end
+            end  % for i
+        end  % for j      
+    end  % for p
     
-    LocationListX{PlayerLeftIdx}=LocationListX{PlayerRightIdx}; %%%%Alpha over Beta%%%%
-    LocationListY{PlayerLeftIdx}=LocationListY{PlayerRightIdx}; %%%%Alpha over Beta%%%%
+    if ExpNum ==2
+        LocationListX{2}=LocationListX{1};
+        LocationListY{2}=LocationListY{1};
+    end
     
     for i = 3:-1:1
         Text = {'',...
@@ -359,8 +373,6 @@ for TrlNum = startTrialNum:endTrialNum
     playerHit       = zeros(2,MaxTargetsOnScreen);
     targetShown     = zeros(2,MaxTargetsOnScreen);
     targetFeedback = cell(1,2);
-    targetFeedback{1} = [];
-    targetFeedback{2} = [];
     x = [0 0]; y = [0 0]; z = [0 0]; side = [0 0]; pWin = [0 0]; % indexable by Left/Right-PlayerIdx
     while ( (GetSecs-tStart < TrialLength) && ~KbCheck)
         
@@ -423,21 +435,22 @@ for TrlNum = startTrialNum:endTrialNum
                 yPos1orig = yPos1;
                 xPos2orig = xPos2;
                 yPos2orig = yPos2;
-                % Split Board: ensure players stay on their own sides
+                % Split Board: stay on your side! And remap coordinates
                 if ( xPos1 < HalfScrRes(1) )    % PlayerLeft has strayed across the line; reset to origin
                     % we'll draw a red warning circle later
                     xPos1 = 0;
                     yPos1 = 0;
+                else
+                    xPos1 = xPos1 - HalfScrRes(1); % just shift. yPos is fine
                 end
                 if ( xPos2 > HalfScrRes(1) )    % PlayerRight has strayed across the line; reset to origin
                     % we'll draw a blue warning circle later
                     xPos2 = 0;
                     yPos2 = 0;
+                else
+                    xPos2 = HalfScrRes(1) - xPos2;
+                    yPos2 = HalfScrRes(2) - yPos2;
                 end
-
-                % Split Board: now remap PlayerLeft to PlayerRight coordinates
-                xPos1 = ScrRes(1)-xPos1;
-                yPos1 = ScrRes(2)-yPos1;
                 
                 side(PlayerLeftIdx)  = 1;
                 side(PlayerRightIdx) = 2;
@@ -474,17 +487,19 @@ for TrlNum = startTrialNum:endTrialNum
                         if targetHit(1,i) && targetHit(2,i)
                             if z(1) < z(2)
                                 playerHit(2,i) = 0;  %%%%%%%%%%%%%% what should this do? 0 or 1? or just go away?
-                                targetFeedback{2} = targetFeedback{2}(1:end-1);
+                                targetHit(2,i) = targetHit(1,i);   % force advance to the next target
+                                targetFeedback{2} = targetFeedback{2}(:,1:end-1);
                             elseif z(1) > z(2)
                                 playerHit(1,i) = 0;  %%%%%%%%%%%%%% what should this do? 0 for scoring?
-                                targetFeedback{1} = targetFeedback{1}(1:end-1);
+                                targetHit(1,i) = targetHit(2,i);   % force advance... is this working???
+                                targetFeedback{1} = targetFeedback{1}(:,1:end-1);
                             end  % else they both get credit
                         elseif targetHit(1,i)
                             targetHit(2,i) = targetHit(1,i);   % force advance to the next target
                         elseif targetHit(2,i)
                             targetHit(1,i) = targetHit(2,i);   % force advance... is this working???
-                        end %if competitive mirroring
-                    end  % if anything got hit
+                        end 
+                    end  %if competitive mirroring
                     for p = [PlayerLeftIdx PlayerRightIdx]   % score separately
                         if (playerHit(p,i))
                             ScorePlayers(playerHit(p,i),TrlNum) = ScorePlayers(playerHit(p,i),TrlNum)+OutComePlayers(1,MoleTypeList{p}(i,targetNum(p,i)));
@@ -535,20 +550,24 @@ for TrlNum = startTrialNum:endTrialNum
                     if (tF_side==1)
                         Screen('DrawTexture', woff1, winfb, P1rect, targetArea(1,:),fbAngle);
                         Screen('DrawTexture', woff1, winfb, P2rect, targetArea(2,:),fbAngle);
-                        Screen('DrawTexture', woff2, winfb, P2rect, targetArea(1,:),fbAngle+180);
-                        Screen('DrawTexture', woff2, winfb, P1rect, targetArea(2,:),fbAngle+180);
+                        if ExpNum == 2
+                            Screen('DrawTexture', woff2, winfb, P2rect, targetArea(1,:),fbAngle+180);
+                            Screen('DrawTexture', woff2, winfb, P1rect, targetArea(2,:),fbAngle+180);
+                        end
                     elseif (tF_side==2)
                         Screen('DrawTexture', woff2, winfb, P1rect, targetArea(2,:),fbAngle+180);
                         Screen('DrawTexture', woff2, winfb, P2rect, targetArea(1,:),fbAngle+180);
-                        Screen('DrawTexture', woff1, winfb, P2rect, targetArea(2,:),fbAngle);
-                        Screen('DrawTexture', woff1, winfb, P1rect, targetArea(1,:),fbAngle);
+                        if ExpNum == 2
+                            Screen('DrawTexture', woff1, winfb, P2rect, targetArea(2,:),fbAngle);
+                            Screen('DrawTexture', woff1, winfb, P1rect, targetArea(1,:),fbAngle);
+                        end
                     end
                     i = i + 1;
                 end
             end
         end  % for p (check feedback lists separately)
     	% draw feedback panes & games directly onto projected window
-        DrawMirrored(window, woff1, woff2, ScrRes);
+        DrawMirrored(window, woff1, woff2, ScrRes, 1);
         
         % show updated screen
         vbl = Screen('Flip', window, vbl+0.5*(1/ScrHz), [], 1); 
