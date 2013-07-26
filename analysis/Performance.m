@@ -2,7 +2,7 @@ function [D,perf] = Performance(s1,s2,ExpNum)
 % Performance, load all trials and get percent of targets hit
 % s1 (string) = playerID1
 % s1 (string) = playerID2
-% ExpNum (integer) = 
+% ExpNum (integer) = 3 is Splitgame, 4 = Distractors
 
 
 if ExpNum==3
