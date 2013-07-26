@@ -9,7 +9,7 @@ elseif ExpNum==4
 end
 
 for t=1:21
-    D{t}=load(['/Users/eshayer/whac-a-mole/whac/analysis/Results/' gameType '/' s1 '_' s2 '/' s1 '_' s2 '_t' num2str(t) '_e' num2str(ExpNum) '.mat']);
+    D{t}=load(['Results/' gameType '/' s1 '_' s2 '/' s1 '_' s2 '_t' num2str(t) '_e' num2str(ExpNum) '.mat']);
     %%Performance, percent of targets hit
         for p = [1 2]
             [maxI, maxJ] = size(D{t}.MoleTypeList{p});
