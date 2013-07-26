@@ -4,6 +4,7 @@
 *.out
 *.toc
 *~
+WAM
 game/*~
 game/Results
 helpers/*~
