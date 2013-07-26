@@ -40,6 +40,7 @@ for s=1:length(SubjectName{1})
 end
 
 MeanXPosDiff=MeanXPos{2}(1,:)-MeanXPos{2}(2,:);
+MeanXPosDiff
 figure
 hist(MeanXPosDiff,6)
 
