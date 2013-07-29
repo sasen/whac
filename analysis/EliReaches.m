@@ -18,8 +18,16 @@ for i = 1:numIVs
     reaches{i} = IntervalSplitter(iv(1), iv(2),mole,xyz,t);
 end
 
-for i=1:size(reaches,1)
-    for j=1:size(reaches{i},2)
-        DevData{i}(j,:)=PathDeviation(reaches{i}(j,1),reaches{i}(j,2));
+for i=1:numIVs
+    r = reaches{i};
+    if ~isempty(r)
+      for j=1:size(r,1)
+        %%Convert Time bounds into TrackList index bounds
+	iLo = find(t >= 240*r(j,1),1,'first');
+	iHi = find(t <= 240*r(j,2),1,'last');
+	Xs = xyz(1,iLo:iHi);
+	Ys = xyz(2,iLo:iHi);      
+        [DevData{i}(j,1) DevData{i}(j,2) ]=PathDeviation(Xs,Ys);
+      end
     end
 end
