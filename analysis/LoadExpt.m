@@ -1,5 +1,5 @@
 function [D,Db] = LoadExpt(s1,s2,ExpNum)
-% Performance, load all trials and get percent of targets 
+% Load all trials and flatten experiment (mole presentation) info
 % s1 (string) = playerID1
 % s1 (string) = playerID2
 % ExpNum (integer) = 3 is Splitgame, 4 = Distractors
@@ -63,4 +63,3 @@ for t=1:maxTrials  % load each trial
     end % for each player
   end % if expnum
 end  % for each trial
-size(Db)
