@@ -1,4 +1,4 @@
-function [valDevX,len] = PathDeviation(Xs,Ys)
+function [valDevX,len,maxI] = PathDeviation(Xs,Ys)
 %PathDeviation, Find the deviation taken from a straight-line path to a target
 %   Random reach begin and end points are chosen, as well as a point that
 %   is between the start and finish for both X and Y. The slope is found,

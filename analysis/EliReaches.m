@@ -13,55 +13,42 @@ clr=D{tr}.TargetColors/255;
 
 OrigIntervals=intervalFinder(mole);
 numIVs = size(OrigIntervals,1);
-reaches = cell(1,numIVs);
+reachcell = cell(1,numIVs);
 for i = 1:numIVs
     iv = OrigIntervals(i,:);
-    reaches{i} = IntervalSplitter(iv(1), iv(2),mole,xyz,t);
+    reachcell{i} = IntervalSplitter(iv(1), iv(2),mole,xyz,t);
 end
+reaches = cell2mat(reachcell');
 
-for i=1:numIVs
-    r = reaches{i};
-    if ~isempty(r)
-      for j=1:size(r,1)
-        %%Convert Time bounds into TrackList index bounds
-	iLo = find(t >= 240*r(j,1),1,'first');
-	iHi = find(t <= 240*r(j,2),1,'last');
-	Xs = xyz(1,iLo:iHi);
-	Ys = xyz(2,iLo:iHi);      
-        [DevData{i}(j,1) DevData{i}(j,2) ]=PathDeviation(Xs,Ys);
-      end
-    end
+for i=1:size(reaches,1)
+  %%Convert Time bounds into TrackList index bounds
+  iLo = find(t >= 240*reaches(i,1),1,'first');
+  iHi = find(t <= 240*reaches(i,2),1,'last');
+  Xs = xyz(1,iLo:iHi);
+  Ys = xyz(2,iLo:iHi);      
+  [dev, len, tIdx] = PathDeviation(Xs,Ys);
+  DevData(i,:) = [dev, len, iLo + tIdx, Xs(1), Ys(1)];
 end
 
 figure; hold on;
-plot(t/240,xyz(3,:),'k.--');
-xlabel('time (s)');
-ylabel('z position');
-
-% lo=0; hi=30;  % bounds in s
-% mIdx = find((mole(2,:) >lo) & (mole(2,:) < hi));  % select moles in bounds
-% for m=mIdx
-%   mOn = mole(2,m);
-%   if mole(7,m)
-%     mOff=mole(7,m);
-%   else
-%     mOff=mOn+1.25;
-%   end
-%   type = mole(3,m);
-%   plot([mOn;mOff], [type;type]/20, 'LineWidth',2, 'Color',clr(type,:));
-%   switch mole(6,m)
-%    case 1
-%     plot(mole(7,m),type/20,'k^','MarkerSize',10);
-%    case 2
-%     plot(mole(7,m),type/20,'kv','MarkerSize',10);
-%   end
-% end
-
-for i=1:numIVs
-  r = reaches{i}
-  if ~isempty(r)
-    for riv = r'
-      plot(riv, [0 0], 'k.-','LineWidth',3);
-    end
-  end
+plot(xyz(1,:),t/240,'b.--');
+axis tight;
+for d=DevData'
+  plot(xyz(1,d(3)),t(d(3))/240, 'ro','MarkerSize',10)
 end
+
+figure; hold on;
+plot(xyz(1,:),xyz(2,:),'b.--')
+axis tight;
+for d=DevData'
+  plot(xyz(1,d(3)),xyz(2,d(3)),'r*','MarkerSize',8);
+  plot(d(4),d(5),'go','MarkerSize',20);
+end
+
+% figure; hold on;
+% plot(t/240,xyz(3,:),'k.--');
+% xlabel('time (s)');
+% ylabel('z position');
+% for riv = reaches'
+%   plot(riv, [0 0], 'o-','LineWidth',2);
+% end
