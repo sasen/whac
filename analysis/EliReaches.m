@@ -1,7 +1,8 @@
-function [FullDev] = EliReaches(s1,s2,ExpNum,pl)
+function [FullDev,meanDev,stdDev] = EliReaches(s1,s2,ExpNum,pl)
 
 [D,Db] = LoadExpt(s1,s2,ExpNum);
 FullDev=[];
+        
 
 for tr=4:21
 
@@ -59,8 +60,20 @@ for tr=4:21
     for i=1:size(DevData,1)
         FullDev(DevSize+i,:)=DevData(i,:);
     end
-
 end
+
+meanDev=mean(FullDev(:,1));
+stdDev=std(FullDev(:,1));
+
 figure
 hist(FullDev(:,1),20)
+if ExpNum==4
+    title(['Target-less game, mean=' num2str(meanDev) ', StdDev=' num2str(stdDev)])
+end
+if ExpNum==3
+    if strcmp(s1,'null') || strcmp(s2,'null')
+        title(['Split-game solo, mean=' num2str(meanDev) ', StdDev=' num2str(stdDev)])
+    else
+        title(['Split-game paired, mean=' num2str(meanDev) ', StdDev=' num2str(stdDev)])
+end
 end
