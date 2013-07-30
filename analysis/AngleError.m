@@ -9,16 +9,21 @@ velocity=NaN(1,tEnd-tOn+1);
 for i=0:tEnd-tOn
     xPos1         = xyz(1,tOn+i);
     yPos1         = xyz(2,tOn+i);
+    zPos1         = xyz(3,tOn+i);
     xPos2         = xyz(1,tOn+i-1);
     yPos2         = xyz(2,tOn+i-1);
+    zPos2         = xyz(3,tOn+i-1);
     tDiff         = (t(tOn+i)-t(tOn+i-1));
     velocity(i+1) = (sqrt((xPos2-xPos1)^2+(yPos2-yPos1)^2))/tDiff;
-    zPos(i+1)     = xyz(3,tOn+i);
+    zVelo(i+1)    = (zPos2-zPos1)/tDiff;
 end
 velocity
-[maxZ,tMaxZ]   = max(xyz(3,tOn:tEnd))
-velocity       = velocity(tMaxZ:end)
-[maxVelo,tMax] = max(velocity)
+% [maxZ,tMaxZ]   = max(xyz(3,tOn:tEnd))
+% velocity       = velocity(tMaxZ:end)
+% [maxVelo,tMax] = max(velocity)
+
+iLogic         = zVelo>0
+[maxVelo,tMax] = max(velocity.*iLogic)
 
 % xPosVertex  = xyz(1,tOn);
 % yPosVertex  = xyz(2,tOn);
@@ -46,7 +51,7 @@ figure
 plot(fvec(1,:),fvec(2,:),'g-'); hold on
 plot(xyz(1,tOn:tEnd),xyz(2,tOn:tEnd),'r.')
 plot(maxV(1),maxV(2),'k.');
-title(['Angle (deg)' Angle ' Max Z ' maxZ ' @' tMaxZ])
+title(['Angle (deg):' num2str(Angle)])
 figure
 plot3(xyz(1,tOn:tEnd),xyz(2,tOn:tEnd),xyz(3,tOn:tEnd),'b.-')
 end
