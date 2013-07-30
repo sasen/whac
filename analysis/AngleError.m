@@ -51,7 +51,7 @@ figure
 plot(fvec(1,:),fvec(2,:),'g-'); hold on
 plot(xyz(1,tOn:tEnd),xyz(2,tOn:tEnd),'r.')
 plot(maxV(1),maxV(2),'k.');
-title(['Angle (deg)' num2str(Angle)])
+title(['Angle (deg):' num2str(Angle)])
 figure
 plot3(xyz(1,tOn:tEnd),xyz(2,tOn:tEnd),xyz(3,tOn:tEnd),'b.-')
 end
