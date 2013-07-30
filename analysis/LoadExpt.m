@@ -37,6 +37,13 @@ end
 for t=1:maxTrials  % load each trial
   filename = [matdir pairname '_t' num2str(t) '_e' num2str(ExpNum) '.mat'];
   D{t}=load(filename);
+
+  %% remove NaNs from tracker data
+  iLogic=isfinite(D{t}.TrackList{3});   % logical indices of not-NaN data
+  D{t}.TrackList{3} = D{t}.TrackList{3}(iLogic);
+  D{t}.TrackList{1} = D{t}.TrackList{1}(:,iLogic);
+  D{t}.TrackList{2} = D{t}.TrackList{2}(:,iLogic);
+
   if (ExpNum == 1)
     [times, sortIndex] = sort(D{t}.TrialList(:)/1000);  % sort flattened onset times in s
     appearedIJs = sortIndex(find(times<30));  % indices of all appeared dots, sorted in time
