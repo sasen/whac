@@ -1,6 +1,6 @@
 % GetHits.m  sasen's analysis script
 
-s1 = 'jlp'; s2 = 'ss'; ExpNum = 3; tr=21;
+s1 = 'jlp'; s2 = 'ss'; ExpNum = 3; tr=4;
 % s1 = '35'; s2 = 'sasen'; ExpNum = 1; tr=39;
 
 [D,Db] = LoadExpt(s1,s2,ExpNum);

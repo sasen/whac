@@ -1,11 +1,11 @@
-%function [ reachIntervals ] = IntervalSplitter(lo, hi, mole, xyz,t)
+function [ reachIntervals ] = IntervalSplitter(lo, hi, mole, xyz,t)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
-lo=0;hi=30;
-mole=Db{1};
-xyz=D{4}.TrackList{1};
-t=D{4}.TrackList{3};
+% lo=0;hi=30;
+% mole=Db{1};
+% xyz=D{4}.TrackList{1};
+% t=D{4}.TrackList{3};
 
 mIdx = find((mole(2,:) >= lo) & (mole(2,:) <= hi));  % select moles in bounds
 mHit = mole(7,mIdx);
@@ -29,7 +29,7 @@ for m=1:length(mHit)-1
     end 
 end
 
-%end
+end
 
 
 
