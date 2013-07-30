@@ -1,9 +1,12 @@
-function [Angle] = AngleError(tStart,tEnd,xyz,t)
+%function [Angle] = AngleError(tStart,tEnd,xyz,t)
 %AngleError Summary of this function goes here
 %   Detailed explanation goes here
+tStart = reachInts(1,1); tEnd = reachInts(1,2);
+xyz = D{4}.TrackList{1}; t=D{4}.TrackList{3};
 
-tOn  = (find(abs(t-tStart*240)<1,1,'first'))
-tEnd = (find(abs(t-tEnd*240)<1,1,'first'))
+%tOn  = find(abs(t-tStart*240)<1,1,'first');
+%tEnd = find(abs(t-tEnd*240)<1,1,'first');
+tOn = 530; tEnd=590;
 
 velocity=NaN(1,tEnd-tOn+1);
 for i=0:tEnd-tOn
@@ -17,41 +20,51 @@ for i=0:tEnd-tOn
     velocity(i+1) = (sqrt((xPos2-xPos1)^2+(yPos2-yPos1)^2))/tDiff;
     zVelo(i+1)    = (zPos2-zPos1)/tDiff;
 end
-velocity
-% [maxZ,tMaxZ]   = max(xyz(3,tOn:tEnd))
-% velocity       = velocity(tMaxZ:end)
-% [maxVelo,tMax] = max(velocity)
+iLogic         = zVelo>0;  
+velIdx = find(iLogic) + tOn-1;
+[~, iSt] = max(xyz(3,tOn:tEnd).*iLogic);   %% start at the top (max z in that interval)
+iSt = iSt + tOn-1;
+iEnd = tEnd;
+[~,iMax] = max(velocity.*iLogic)
+iMax = iMax + tOn-1;
 
-iLogic         = zVelo>0
-[maxVelo,tMax] = max(velocity.*iLogic)
-
-% xPosVertex  = xyz(1,tOn);
-% yPosVertex  = xyz(2,tOn);
-% xPosFinal   = xyz(1,tEnd);
-% yPosFinal   = xyz(2,tEnd);
-% xPosMaxVelo = xyz(1,tMax+tOn);
-% yPosMaxVelo = xyz(2,tMax+tOn);
-
-vertex  = xyz(1:2,tOn); 
-finalpt = xyz(1:2,tEnd)-vertex;
-maxVpt = xyz(1:2,tMax+tOn) - vertex;
-
-% xPOS=[xPosFinal,xPosVertex,xPosMaxVelo];
-% yPOS=[yPosFinal,yPosVertex,yPosMaxVelo];
-
-
+vertex  = xyz(1:2,iSt); 
+finalpt = xyz(1:2,iEnd) - vertex;
+maxVpt  = xyz(1:2,iMax) - vertex;
 
 CosTheta = dot(finalpt,maxVpt)/(norm(finalpt)*norm(maxVpt));
 Angle = acos(CosTheta)*180/pi;
 
-fvec = [vertex finalpt+vertex];
+fvec = [vertex finalpt+vertex; [0 0]];
 maxV = maxVpt+vertex;
 
-figure
-plot(fvec(1,:),fvec(2,:),'g-'); hold on
-plot(xyz(1,tOn:tEnd),xyz(2,tOn:tEnd),'r.')
-plot(maxV(1),maxV(2),'k.');
-title(['Angle (deg):' num2str(Angle)])
-figure
+figure; hold on;
+%- reach start-to-end straightline in green
+plot3(fvec(1,:),fvec(2,:),[xyz(3,iSt) xyz(3,iEnd)],'g-');
+plot3(fvec(1,:),fvec(2,:),fvec(3,:),'g-');
+%-  full trajectory in blue
+plot3(xyz(1,tOn:tEnd),xyz(2,tOn:tEnd),zeros(1,tEnd-tOn+1),'b.-')
 plot3(xyz(1,tOn:tEnd),xyz(2,tOn:tEnd),xyz(3,tOn:tEnd),'b.-')
-end
+%-  z decreasing trajectory in red
+plot3(xyz(1,velIdx),xyz(2,velIdx),zeros(size(velIdx)),'r.');
+plot3(xyz(1,velIdx),xyz(2,velIdx),xyz(3,velIdx),'r.');
+%- start to max-velocity point in black
+plot3([xyz(1,iSt) xyz(1,iMax)],[xyz(2,iSt) xyz(2,iMax)],[0,0],'k.-');
+plot3([xyz(1,iSt) xyz(1,iMax)],[xyz(2,iSt) xyz(2,iMax)],[xyz(3,iSt) xyz(3,iMax)],'k.-');
+%- start point green star
+plot3(xyz(1,iSt),xyz(2,iSt),0,'g*','MarkerSize',10)
+plot3(xyz(1,iSt),xyz(2,iSt),xyz(3,iSt),'g*','MarkerSize',10)
+%- end point black circle
+plot3(xyz(1,iEnd),xyz(2,iEnd),0,'ko','MarkerSize',10)
+plot3(xyz(1,iEnd),xyz(2,iEnd),xyz(3,iEnd),'ko','MarkerSize',10)
+%- labels
+title('Blue[tOn:tEnd] Red[zVelo>0] Gr=iSt Bk=iMax BlackRing=iEnd');
+xlabel(['Angle (deg):' num2str(Angle)])
+
+% figure; hold on;
+% plot3(xyz(1,tOn:tEnd),xyz(2,tOn:tEnd),xyz(3,tOn:tEnd),'b.-')
+% plot3(xyz(1,velIdx),xyz(2,velIdx),xyz(3,velIdx),'r.')
+% plot3(xyz(1,tOn),xyz(2,tOn),xyz(3,tOn),'g*','MarkerSize',10)
+% plot3(xyz(1,tEnd),xyz(2,tEnd),xyz(3,tEnd),'ko','MarkerSize',10)
+
+%end
