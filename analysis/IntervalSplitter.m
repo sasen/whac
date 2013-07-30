@@ -30,32 +30,32 @@ for m=1:length(mHit)-1
 end
 
 end
-
-
-
-
-for k=1:length(mHit)
-    hInd(k) = (find(abs(t-mHit(k)*240)<1,1,'first'));
-end
-
-plot(t/240,xyz(3,:),'k.-'); hold on;
-plot(t(hInd)/240,xyz(3,hInd),'r*','MarkerSize',10)  % molehit
-plot(allHits/240,xyz(3,hitpointsInd),'b*','MarkerSize',10); % z-based
-
-
-    for m=mIdx
-        mOn = mole(2,m);
-        if mole(7,m)
-            mOff=mole(7,m);
-        else
-            mOff=mOn+1.25;
-        end
-        type = mole(3,m);
-        plot([mOn;mOff], [type;type]/20, 'LineWidth',2, 'Color',clr(type,:));
-        switch mole(6,m)
-            case 1
-                plot(mole(7,m),type/20,'k^','MarkerSize',10);
-            case 2
-                plot(mole(7,m),type/20,'kv','MarkerSize',10);     
-        end
-    end
+% 
+% 
+% 
+% 
+% for k=1:length(mHit)
+%     hInd(k) = (find(abs(t-mHit(k)*240)<1,1,'first'));
+% end
+% 
+% plot(t/240,xyz(3,:),'k.-'); hold on;
+% plot(t(hInd)/240,xyz(3,hInd),'r*','MarkerSize',10)  % molehit
+% plot(allHits/240,xyz(3,hitpointsInd),'b*','MarkerSize',10); % z-based
+% 
+% 
+%     for m=mIdx
+%         mOn = mole(2,m);
+%         if mole(7,m)
+%             mOff=mole(7,m);
+%         else
+%             mOff=mOn+1.25;
+%         end
+%         type = mole(3,m);
+%         plot([mOn;mOff], [type;type]/20, 'LineWidth',2, 'Color',clr(type,:));
+%         switch mole(6,m)
+%             case 1
+%                 plot(mole(7,m),type/20,'k^','MarkerSize',10);
+%             case 2
+%                 plot(mole(7,m),type/20,'kv','MarkerSize',10);     
+%         end
+%     end
