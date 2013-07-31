@@ -18,20 +18,19 @@ deltaX = Xs(end)-Xs(1);
 deltaY = Ys(end)-Ys(1);
 endpt = [deltaX; deltaY];
 len = norm(endpt,2);
-theta = asin(deltaX/len);
+theta = acos(deltaY/len);
 R = [cos(theta)   -sin(theta);  sin(theta)   cos(theta)];
 Rotated = R*[Xs-Xs(1); Ys-Ys(1)];
+vert = R*endpt;
 
 Devs = abs(Rotated(1,:));
 [valDevX,maxI] = max(Devs);
 
+maxDevX = min(valDevX,Rotated(1,maxI));
+maxDevY = Rotated(2,maxI);
+perp = [0 maxDevX; maxDevY maxDevY];
+unrot = R'*perp + [Xs(1) Xs(1); Ys(1) Ys(1)];
 
-% maxDevX = min(valDevX,Rotated(1,maxI));
-% maxDevY = Rotated(2,maxI);
-% perp = [0 maxDevX; maxDevY maxDevY];
-% unrot = R'*perp + [Xs(1) Xs(1); Ys(1) Ys(1)];
-
-% vert = R*endpt;
 % figure; hold on;
 % plot([0; endpt(1)],[0; endpt(2)],'bo-');
 % plot([0; vert(1)],[0; vert(2)],'ro-');
