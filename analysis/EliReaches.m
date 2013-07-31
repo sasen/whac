@@ -13,11 +13,22 @@ for tr=1:21
     hitIdx = TrackdataHits(xyz,t);  
 
     %% target present intervals
-    moleInts = intervalFinder(mole);    % in seconds
+    moleInts = intervalFinder(mole)    % in seconds
     if moleInts(end) > 30
-      moleInts(end) = t(end)/240;     % clip last one to end of trial
+      moleInts(end) = t(end)/240-1;     % clip last one to end of trial
     end
-    targInts = Secs2Track(moleInts,t);  % in track idx
+    for k=1:prod(size(moleInts))
+      found = find(abs(t-moleInts(k)*240)<1,1,'first')
+      if isempty(found)
+        moleInts(k)
+        found = find(abs(t-moleInts(k)*240)<3,1,'first');
+        targInts(k) = found(1);
+      else
+          targInts(k) = found(1);
+      end
+    end
+    targInts = reshape(targInts,size(moleInts));    
+%    targInts = Secs2Track(moleInts(1:end-1,:),t)  % in track idx
 
     %% get all reach intervals in the trial
     % combine target intervals and hit indices
