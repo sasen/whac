@@ -1,5 +1,5 @@
-%function [FullDev,meanDev,stdDev] = EliReaches(s1,s2,ExpNum,pl)
-s1='jlp'; s2='ss'; ExpNum=3; pl=1;
+function [FullDev,meanDev,stdDev] = EliReaches(s1,s2,ExpNum,pl)
+% s1='jlp'; s2='ss'; ExpNum=3; pl=1;
 [D,Db] = LoadExpt(s1,s2,ExpNum);
 
 AErr = cell(1,21);
