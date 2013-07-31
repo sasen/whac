@@ -1,8 +1,9 @@
-function [FullDev,meanDev,stdDev] = EliReaches(s1,s2,ExpNum,pl)
-% s1='jlp'; s2='ss'; ExpNum=3; pl=1;
+function [reaches, AErr, Devs, D, Db] = EliReaches(s1,s2,ExpNum,pl)
+%s1='jlp'; s2='ss'; ExpNum=3; pl=1;
 [D,Db] = LoadExpt(s1,s2,ExpNum);
 
 AErr = cell(1,21);
+Devs = cell(1,21);
 for tr=1:21
     mole = Db{pl,tr};
     xyz  = D{tr}.TrackList{pl};
@@ -24,21 +25,15 @@ for tr=1:21
 
     AErr{tr} = 180*ones(length(reaches{tr}),4);
     for i=1:length(reaches{tr})
-        AErr{tr}(i,:) = AngleError(reaches{tr}(i,1),reaches{tr}(i,2),xyz,t);
-
-%         Xs = xyz(1,reaches(i,:));
-%         Ys = xyz(2,reaches(i,:));      
-%         [dev, len, tIdx] = PathDeviation(Xs,Ys);
-%         DevData(i,:) = [dev, len, iLo + tIdx, Xs(1), Ys(1)];
+        riv = reaches{tr}(i,:);   % reach interval
+        AErr{tr}(i,:) = AngleError(riv(1),riv(2),xyz,t);
+	Xs = xyz(1,riv(1):riv(2));
+        Ys = xyz(2,riv(1):riv(2));
+        [dev, len, tIdx] = PathDeviation(Xs,Ys);
+        Devs{tr}(i,:) = [dev, len, riv + tIdx, Xs(1), Ys(1)];
     end
 
-%     DevSize=size(FullDev,1);
-%     for i=1:size(DevData,1)
-%         FullDev(DevSize+i,:)=DevData(i,:);
-%     end
 end
-
-AErr
 
 % meanDev=mean(FullDev(:,1));
 % stdDev=std(FullDev(:,1));
