@@ -1,79 +1,57 @@
-function [FullDev,meanDev,stdDev] = EliReaches(s1,s2,ExpNum,pl)
-
+%function [FullDev,meanDev,stdDev] = EliReaches(s1,s2,ExpNum,pl)
+s1='jlp'; s2='ss'; ExpNum=3; pl=1;
 [D,Db] = LoadExpt(s1,s2,ExpNum);
-FullDev=[];
-        
 
-for tr=4:21
+AErr = cell(1,21);
+for tr=1:21
+    mole = Db{pl,tr};
+    xyz  = D{tr}.TrackList{pl};
+    t    = D{tr}.TrackList{3};
 
-    if ExpNum==1
-        mole = Db{tr};
-    else
-        mole = Db{pl,tr};
+    %% hits from raw tracker data (in track idx)
+    hitIdx = TrackdataHits(xyz,t);  
+
+    %% target present intervals
+    moleInts = intervalFinder(mole);    % in seconds
+    if moleInts(end) > 30
+      moleInts(end) = t(end)/240;     % clip last one to end of trial
     end
-    xyz = D{tr}.TrackList{pl};
-    t = D{tr}.TrackList{3};
-    clr=D{tr}.TargetColors/255;
+    targInts = Secs2Track(moleInts,t);  % in track idx
 
-    OrigIntervals=intervalFinder(mole);
-    numIVs = size(OrigIntervals,1);
-    reachcell = cell(1,numIVs);
-    for i = 1:numIVs
-        iv = OrigIntervals(i,:);
-        reachcell{i} = IntervalSplitter(iv(1), iv(2),mole,xyz,t);
-    end
-    reaches = cell2mat(reachcell');
+    %% get all reach intervals in the trial
+    % combine target intervals and hit indices
+    reaches{tr} = FindReaches(targInts,hitIdx);
 
-    for i=1:size(reaches,1)
-        %%Convert Time bounds into TrackList index bounds
-        iLo = find(t >= 240*reaches(i,1),1,'first');
-        iHi = find(t <= 240*reaches(i,2),1,'last');
-        Xs = xyz(1,iLo:iHi);
-        Ys = xyz(2,iLo:iHi);      
-        [dev, len, tIdx] = PathDeviation(Xs,Ys);
-        DevData(i,:) = [dev, len, iLo + tIdx, Xs(1), Ys(1)];
+    AErr{tr} = 180*ones(length(reaches{tr}),4);
+    for i=1:length(reaches{tr})
+        AErr{tr}(i,:) = AngleError(reaches{tr}(i,1),reaches{tr}(i,2),xyz,t);
+
+%         Xs = xyz(1,reaches(i,:));
+%         Ys = xyz(2,reaches(i,:));      
+%         [dev, len, tIdx] = PathDeviation(Xs,Ys);
+%         DevData(i,:) = [dev, len, iLo + tIdx, Xs(1), Ys(1)];
     end
 
-%     figure; hold on;
-%     plot(xyz(1,:),t/240,'b.--');
-%     axis tight;
-%     for d=DevData'
-%         plot(xyz(1,d(3)),t(d(3))/240, 'ro','MarkerSize',10)
+%     DevSize=size(FullDev,1);
+%     for i=1:size(DevData,1)
+%         FullDev(DevSize+i,:)=DevData(i,:);
 %     end
-
-%     figure; hold on;
-%     plot(xyz(1,:),xyz(2,:),'b.--')
-%     axis tight;
-%     for d=DevData'
-%         plot(xyz(1,d(3)),xyz(2,d(3)),'r*','MarkerSize',8);
-%         plot(d(4),d(5),'go','MarkerSize',20);
-%     end
-
-    % figure; hold on;
-    % plot(t/240,xyz(3,:),'k.--');
-    % xlabel('time (s)');
-    % ylabel('z position');
-    % for riv = reaches'
-    %   plot(riv, [0 0], 'o-','LineWidth',2);
-    % end
-    DevSize=size(FullDev,1);
-    for i=1:size(DevData,1)
-        FullDev(DevSize+i,:)=DevData(i,:);
-    end
 end
 
-meanDev=mean(FullDev(:,1));
-stdDev=std(FullDev(:,1));
+AErr
 
-figure
-hist(FullDev(:,1),20)
-if ExpNum==4
-    title(['Target-less game, mean=' num2str(meanDev) ', StdDev=' num2str(stdDev)])
-end
-if ExpNum==3
-    if strcmp(s1,'null') || strcmp(s2,'null')
-        title(['Split-game solo, mean=' num2str(meanDev) ', StdDev=' num2str(stdDev)])
-    else
-        title(['Split-game paired, mean=' num2str(meanDev) ', StdDev=' num2str(stdDev)])
-end
-end
+% meanDev=mean(FullDev(:,1));
+% stdDev=std(FullDev(:,1));
+
+% figure
+% hist(FullDev(:,1),20)
+% if ExpNum==4
+%     title(['Target-less game, mean=' num2str(meanDev) ', StdDev=' num2str(stdDev)])
+% end
+% if ExpNum==3
+%     if strcmp(s1,'null') || strcmp(s2,'null')
+%         title(['Split-game solo, mean=' num2str(meanDev) ', StdDev=' num2str(stdDev)])
+%     else
+%         title(['Split-game paired, mean=' num2str(meanDev) ', StdDev=' num2str(stdDev)])
+% end
+%end

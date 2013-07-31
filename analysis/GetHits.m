@@ -1,15 +1,13 @@
-% GetHits.m  sasen's analysis script
+function GetHits(s1,s2,ExpNum,tr)
+% GetHits.m  Plot mole intervals against Z values from tracker
+% GetHits(s1,s2,ExpNum,tr) -- doesn't work for Fullscreen!
 
-s1 = 'jlp'; s2 = 'ss'; ExpNum = 3; tr=4;
-% s1 = '35'; s2 = 'sasen'; ExpNum = 1; tr=39;
+if nargin==0
+  s1 = 'jlp'; s2 = 'ss'; ExpNum = 3; tr=4;
+  % s1 = '35'; s2 = 'sasen'; ExpNum = 1; tr=39;
+end
 
 [D,Db] = LoadExpt(s1,s2,ExpNum);
-pl=2;
-if ExpNum==1
-  mole = Db{tr};
-else
-  mole = Db{pl,tr};
-end
 
 clr = D{tr}.TargetColors/255;
 trackt = D{tr}.TrackList{3}/240;  % time in s
@@ -27,6 +25,7 @@ for pl=[1 2]
     subplot(2,1,pl),plot(trackt,xyz{pl}(3,:),'k.--')
     hold on
     %plot(trackt/240,xyz2(3,:),'b.--')
+    title([s1 ' vs ' s2 ' trial ' num2str(tr)])
     xlabel('time (s)')
     ylabel('z position')
 
