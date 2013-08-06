@@ -13,7 +13,7 @@ clr = D{tr}.TargetColors/255;
 trackt = D{tr}.TrackList{3}/240;  % time in s
 xyz = cell(1,2);
 figure
-for pl=[1 2]
+for pl=[2]
     xyz{pl} = D{tr}.TrackList{pl};
     mole = Db{pl,tr};
 
@@ -22,12 +22,13 @@ for pl=[1 2]
     mHit = mole(7,mIdx);
     mType = mole(3,mIdx);
 
-    subplot(2,1,pl),plot(trackt,xyz{pl}(3,:),'k.--')
+%    subplot(2,1,pl),plot(trackt,xyz{pl}(3,:),'k.--')
+    plot(trackt,xyz{pl}(3,:),'k.--')
     hold on
     %plot(trackt/240,xyz2(3,:),'b.--')
-    title([s1 ' vs ' s2 ' trial ' num2str(tr)])
-    xlabel('time (s)')
-    ylabel('z position')
+    title(['\fontsize{16}' s1 ' vs ' s2 ' trial ' num2str(tr)])
+    xlabel('\fontsize{14}time (s)')
+    ylabel('\fontsize{14}height (in)')
 
     for m=mIdx
         mOn = mole(2,m);
@@ -37,12 +38,14 @@ for pl=[1 2]
             mOff=mOn+1.25;
         end
         type = mole(3,m);
-        plot([mOn;mOff], [type;type]/20, 'LineWidth',2, 'Color',clr(type,:));
+        plot([mOn;mOff], [type;type]/20, 'LineWidth',4, 'Color',clr(type,:));
         switch mole(6,m)
             case 1
-                subplot(2,1,pl),plot(mole(7,m),type/20,'k^','MarkerSize',6);
+%                subplot(2,1,pl),plot(mole(7,m),type/20,'k^','MarkerSize',10);
             case 2
-                subplot(2,1,pl),plot(mole(7,m),type/20,'kv','MarkerSize',6);     
+%                subplot(2,1,pl),plot(mole(7,m),type/20,'kv','MarkerSize',10);     
+                plot(mole(7,m),type/20,'kv','MarkerSize',10);     
         end
     end
 end
+axis tight

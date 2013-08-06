@@ -18,7 +18,7 @@ deltaX = Xs(end)-Xs(1);
 deltaY = Ys(end)-Ys(1);
 endpt = [deltaX; deltaY];
 len = norm(endpt,2);
-theta = acos(deltaY/len);
+theta = asin(deltaX/len);
 R = [cos(theta)   -sin(theta);  sin(theta)   cos(theta)];
 Rotated = R*[Xs-Xs(1); Ys-Ys(1)];
 vert = R*endpt;
@@ -31,12 +31,18 @@ maxDevY = Rotated(2,maxI);
 perp = [0 maxDevX; maxDevY maxDevY];
 unrot = R'*perp + [Xs(1) Xs(1); Ys(1) Ys(1)];
 
-% figure; hold on;
-% plot([0; endpt(1)],[0; endpt(2)],'bo-');
-% plot([0; vert(1)],[0; vert(2)],'ro-');
-% plot([Xs(1) Xs(end)], [Ys(1) Ys(end)],'r.-');
-% plot(Xs,Ys,'b.-');
-% plot(Rotated(1,:), Rotated(2,:),'b*--');
-% plot(perp(1,:),perp(2,:),'k-');
-% plot(unrot(1,:),unrot(2,:),'k-');
-% grid on; axis equal;
+figure; hold on;
+%subplot(1,2,1),plot([0; endpt(1)],[0; endpt(2)],'bo-');
+subplot(1,2,1),plot([Xs(1) Xs(end)], [Ys(1) Ys(end)],'r.-');hold on;
+subplot(1,2,1),plot(Xs,Ys,'b.-');
+subplot(1,2,1),plot(unrot(1,:),unrot(2,:),'k-','LineWidth',2);
+ylabel('\fontsize{14}Vertical Position (px)')
+xlabel('\fontsize{14}Horizontal Position (px)')
+title('\fontsize{16}Original Reach')
+grid on; axis equal;
+subplot(1,2,2),plot([0; vert(1)],[0; vert(2)],'ro-'); hold on;
+subplot(1,2,2),plot(Rotated(1,:), Rotated(2,:),'b*--');
+subplot(1,2,2),plot(perp(1,:),perp(2,:),'k-','LineWidth',2);
+grid on; axis equal;
+xlabel('\fontsize{14}Horizontal Position (px)')
+title('\fontsize{16}Straightened Reach')
