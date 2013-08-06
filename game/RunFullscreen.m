@@ -1,4 +1,6 @@
 function RunFullscreen(ExpMode)
+%again its me
+%hello this is maryam
 % RUNFULLSCREEN   Run fullscreen Whac-a-mole experiment
 %   Summer 2013 // Modified by Sasen
 %   ExpMode: 0 = test mode, 1 = real experiment mode
