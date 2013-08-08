@@ -373,10 +373,10 @@ if ( CreateData )
                     
 %                     nTargetType(TrlNum,MatData.MoleTypeList(t),pall(p),s) = nTargetType(TrlNum,MatData.MoleTypeList(t),pall(p),s)+1;
                     
-                    
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     XTemp = MatData.LocationListX(t)-nanmean(MatData.TrackList{p}(1,tOnset-5:tOnset+5));
                     YTemp = MatData.LocationListY(t)-nanmean(MatData.TrackList{p}(2,tOnset-5:tOnset+5));
-                    ZTemp = nanmean(MatData.TrackList{p}(2,tOnset-5:tOnset+5));
+                    ZTemp = nanmean(MatData.TrackList{p}(2,tOnset-5:tOnset+5));%%%%note from maryam & sasen: this is not z position it is y, note index 2
                     
 %                     [Th,R] = cart2pol(XTemp,YTemp);
 %                     HitEucDistFromStart(TrlNum,countHits,pall(p),s) = R;
@@ -390,6 +390,7 @@ if ( CreateData )
                         HitVerDistFromStart(TrlNum,countHits,pall(p),s) = abs(YTemp);
                         HitHorDistFromStart(TrlNum,countHits,pall(p),s) = abs(XTemp);
                     end
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     
                     
 %                     if ( HitEucDistFromStart(TrlNum,countHits,pall(p),s)< 50 )
