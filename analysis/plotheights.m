@@ -1,4 +1,10 @@
-function update2(x,y1,y2,thisDelay)
+function plotheights(x,y1,y2,thisDelay)
+% function plotheights(x,y1,y2,thisDelay)
+%    x = time in s or time indices (int/float)
+%    y1 & y2 = height trajectories of a trial (z data, float)
+%    thisDelay = delay interval in seconds, (float)
+% This is mostly from the project waterloo people at KCL! 
+% Used to be called update2; modded to animate trajectories.
  
     if nargin == 4
         DELAY = thisDelay;
@@ -13,7 +19,7 @@ function update2(x,y1,y2,thisDelay)
  
     % Set up and create some data
     f = GXFigure();
-    set(gcf, 'Units','normalized', 'Position',[0.3 0.3 0.4 0.4], 'Name','TestAnimation');
+    set(gcf, 'Units','normalized', 'Position',[0.3 0.3 0.4 0.4], 'Name','Trajectory Heights');
      
     % Now  the plot
     gr1 = subplot(f,1,1,1);
