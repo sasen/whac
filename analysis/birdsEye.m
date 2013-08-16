@@ -14,7 +14,7 @@ function birdsEye(x1,y1,x2,y2,thisDelay)
  
     % Set up and create some data
     f = GXFigure();
-    set(gcf, 'Units','normalized', 'Position',[0.3 0.3 0.4 0.4], 'Name','TestAnimation');
+    set(gcf, 'Units','normalized', 'Position',[0.3 0.3 0.4 0.4], 'Name','2D Trajectories');
      
     % Now  the plot
     gr1 = subplot(f,1,1,1);

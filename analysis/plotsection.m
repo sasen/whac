@@ -1,6 +1,6 @@
 function []= plotsection(tk,lo,hi,thisDelay)
 % function []= plotsection(tk,lo,hi,thisDelay)
-%    tk = a trial's tracker data (cell, 1x2 or 1x3, of [x;y] or [x;y;z] data)
+%    tk = a trial's tracker data (cell, 1x2 or 1x3, of 2D or 3D data)
 %    lo = tracker index to start plotting (int)
 %    hi = tracker index to stop plotting (int)
 %    thisDelay = delay interval in seconds (float, min=0.001)
@@ -29,7 +29,5 @@ if d==2
   birdsEye(tk{1}(1,lo:hi),tk{1}(2,lo:hi),tk{2}(1,lo:hi),tk{2}(2,lo:hi),DELAY);
 elseif d==3
   %plotgame(x1,y1,z1,x2,y2,z2,del);
-% doesn't work yet
-%  plotgame(tk{1}(1,lo:hi),tk{1}(2,lo:hi),tk{1}(3,lo:hi),tk{2}(1,lo:hi),tk{2}(2,lo:hi),tk{2}(3,lo:hi),DELAY);
-  birdsEye(tk{1}(1,lo:hi),tk{1}(2,lo:hi),tk{2}(1,lo:hi),tk{2}(2,lo:hi),DELAY);
+  plotgame(tk{1}(1,lo:hi),tk{1}(2,lo:hi),tk{1}(3,lo:hi),tk{2}(1,lo:hi),tk{2}(2,lo:hi),tk{2}(3,lo:hi),DELAY);
 end
