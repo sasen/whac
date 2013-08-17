@@ -13,23 +13,18 @@ e = num2str(e);
 if e=='1'
     gameType='RunFullscreen';
     matdir = [dirbase gameType '/HonestConfederate/' pairname '/'];
-    maxTrials=39;
 elseif e=='1.01'
     gameType='RunFullscreen';
     matdir = [dirbase gameType '/NaberSubjVsSubj/' pairname '/'];
-    maxTrials=1;
 elseif e=='2'
     gameType='RunMirrored';
     matdir=[dirbase gameType '/' pairname '/'];
-    maxTrials=21;   % not set in stone
 elseif e=='3'
     gameType='RunSplitgame';
     matdir=[dirbase gameType '/' pairname '/'];
-    maxTrials=21;
 elseif e=='4'
     gameType='RunDistractors';
     matdir=[dirbase gameType '/' pairname '/'];
-    maxTrials=21;
 end
 assert(exist(matdir,'dir')==7, '%s: Cannot find directory %s.',mfilename,matdir);
 
