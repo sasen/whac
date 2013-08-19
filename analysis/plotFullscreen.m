@@ -7,33 +7,28 @@
 %   % s1 = '35'; s2 = 'sasen'; ExpNum = 1; tr=39;
 % end
 
-[D,Db] = LoadExpt('att','jcc',1.01);
-tr=1;
+%g = LoadGame('att','jcc',1.01,1);
+g = LoadGame('m7r','ss',1,1);
 
-clr = D{tr}.TargetColors/255;
-tgtDur = D{tr}.TargetPresTime/1000;  % target duration in s
-trackt = D{tr}.TrackList{3}/240;  % time in s
-xyz = cell(1,2);
-games = {Db{1,tr}; Db{1,tr}};
+clr = g.TargetColors/255;
+tgtDur = g.TargetPresTime/1000;  % target duration in s
+trackt = g.TrackList{3}/240;  % time in s
 zspec = {'r.--'; 'b.--'};
 hitspec = {'rv'; 'b^'};
+slotsize = size(g.LocationListX);  % size of unflattened mole info matrices, to retrieve mole slot
 
 figure;
 hold on
-%title(['\fontsize{16}' s1 ' vs ' s2 ' trial ' num2str(tr)])
+%title(['\fontsize{16}' g.pname1 ' vs ' g.pname2 ' trial ' num2str(g.TrlNum)])
 xlabel('\fontsize{14}time (s)')
 ylabel('\fontsize{14}height (in)')
 
 for pl=[1 2]
-    xyz{pl} = D{tr}.TrackList{pl};
-    mole = games{pl};
+    mole = g.mole{1};
+    plot(trackt,g.TrackList{pl}(3,:),zspec{pl})
 
-    plot(trackt,xyz{pl}(3,:),zspec{pl})
-
-    lo=0; hi=D{tr}.TrialLength;  % bounds in s
+    lo=0; hi=g.TrialLength;  % bounds in s
     mIdx = find((mole(2,:) >lo) & (mole(2,:) < hi));  % select moles in bounds
-    mHit = mole(7,mIdx);
-    mType = mole(3,mIdx);
 
     for m=mIdx
         mOn = mole(2,m);
@@ -43,13 +38,12 @@ for pl=[1 2]
             mOff=mOn+tgtDur;
         end
         type = mole(3,m);
-        plot([mOn;mOff], [type;type]/20, 'LineWidth',1, 'Color',clr(type,:));
-        switch mole(6,m)
-            case 1
-                plot(mole(7,m),type/20,hitspec{1},'MarkerSize',10);     
-            case 2
-                plot(mole(7,m),type/20,hitspec{2},'MarkerSize',10);     
-        end
+	[slot, ~] = ind2sub(slotsize, mole(1,m));  % which of the 8 currently-appearing moles it is
+        plot([mOn;mOff], [slot;slot]/20, 'LineWidth',2, 'Color',clr(type,:));  % plot mole-colored line in the right slot
+	% if it was hit, mark which player hit it
+	if mole(6,m)  % 1=p1, 2=p2
+	  plot(mole(7,m),slot/20,hitspec{mole(6,m)},'MarkerSize',10);
+	end
     end
 end
 axis tight
