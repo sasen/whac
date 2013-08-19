@@ -16,17 +16,19 @@ stamped{3} = find(isfinite(old.TrackList{1}(1,:)));
 stamped{1} = old.TrackList{1}(:,stamped{3});
 stamped{2} = old.TrackList{2}(:,stamped{3});
 
+%% rename variables: ppname1 -> pname1
+old.pname1 = old.ppname1;
+old.pname2 = old.ppname2;
+
 %% the other thing to do is to deal with the Z coordinate
 stamped{1}(3,:) = stamped{1}(3,:) - 9;
 stamped{2}(3,:) = stamped{2}(3,:) - 9;
-
-   %% NOT FINISHED YET
-
-
-%% save changes to the struct
+  %% NOT FINISHED YET
 old.TrackList = stamped;
+
+%% convert experiment number. (old) N --> (new) 1.0N
 convExpNum = ['1.0' num2str(old.ExpNum)];
-old.ExpNum = convExpNum;
+old.ExpNum = str2double(convExpNum);
 
 %% save converted file with other data
 save([convDir '/' old.ppname '_t' num2str(old.TrlNum) '_e' convExpNum '.mat'],'-struct','old');

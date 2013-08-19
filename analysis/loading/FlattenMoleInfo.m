@@ -22,9 +22,6 @@ xyzt{1} = g.TrackList{1}(:,iLogic);
 xyzt{2} = g.TrackList{2}(:,iLogic);
 
 duration = g.TrialLength;
-if ischar(g.ExpNum)
-  g.ExpNum = str2double(g.ExpNum);
-end
 mole = cell(2,1);
 
 if (g.ExpNum < 2)  %% this is for versions of RunFullscreen
