@@ -24,10 +24,6 @@ for i=[1 2]
   ax(i) = subplot(game(end),1,gg);
 end
 
-xlabel('\fontsize{14}time (s)')
-ylabel('\fontsize{14}height (in)')
-%title(['\fontsize{16}' g.pname1 ' vs ' g.pname2 ' trial ' num2str(g.TrlNum)])
-
 for pl=[1 2]
     mole = g.mole{game(pl)};
     plot(ax(game(pl)),trackt,g.TrackList{pl}(3,:),zspec{pl})
@@ -50,4 +46,8 @@ for pl=[1 2]
 	end
     end
     axis(ax(game(pl)),'tight');
+    ylabel(ax(game(pl)),'\fontsize{14}height (in)');
 end
+title(ax(1),['\fontsize{16}' g.pname1 ' vs ' g.pname2 ' trial ' num2str(g.TrlNum) ' ']);
+xlabel(ax(end),'\fontsize{14}time (s)');
+
