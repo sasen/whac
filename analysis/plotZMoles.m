@@ -26,7 +26,7 @@ end
 
 for pl=[1 2]
     mole = g.mole{game(pl)};
-    plot(ax(game(pl)),trackt,g.TrackList{pl}(3,:),zspec{pl})
+    hh(pl) = plot(ax(game(pl)),trackt,g.TrackList{pl}(3,:),zspec{pl});
     hold(ax(game(pl)),'on');
     mIdx = find((mole(2,:) >lo) & (mole(2,:) < hi));  % select moles in bounds
 
@@ -50,4 +50,5 @@ for pl=[1 2]
 end
 title(ax(1),['\fontsize{16}' g.pname1 ' vs ' g.pname2 ' trial ' num2str(g.TrlNum) ' ']);
 xlabel(ax(end),'\fontsize{14}time (s)');
+legend(hh,'player1','player2');
 
