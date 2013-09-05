@@ -13,6 +13,12 @@ e = num2str(e);
 if e=='1'
     gameType='RunFullscreen';
     matdir = [dirbase gameType '/HonestConfederate/' pairname '/'];
+    if (exist(matdir,'dir')~=7)
+      matdir = [dirbase gameType '/SubjectVsSubject/' pairname '/'];
+      if (exist(matdir,'dir')~=7)
+	matdir = [dirbase gameType '/DeceptiveConfederate/' pairname '/'];
+      end
+    end
 elseif e=='1.01'
     gameType='RunFullscreen';
     matdir = [dirbase gameType '/NaberSubjVsSubj/' pairname '/'];
