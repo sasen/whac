@@ -2,16 +2,16 @@ function plotccor(sig1,sig2,ylabelstr)
 % function plotccor(sig1,sig2)
 % Plot cross-correlation of 2 signals, and the signals
 
-[R11none,tau] = xcorr(sig1);
-R11coeff = xcorr(sig1,'coeff');
-R22none = xcorr(sig2);
-R22coeff = xcorr(sig2,'coeff');
+[R11none,tau] = xcorr(sig1,99);
+R11coeff = xcorr(sig1,99,'coeff');
+R22none = xcorr(sig2,99);
+R22coeff = xcorr(sig2,99,'coeff');
 
-R12none = xcorr(sig1,sig2);
+R12none = xcorr(sig1,sig2,99);
 [rmaxnone,imaxnone]=max(R12none);
 tmaxnone = tau(imaxnone);
 
-R12coeff = xcorr(sig1,sig2,'coeff');
+R12coeff = xcorr(sig1,sig2,99,'coeff');
 [rmaxcoeff,imaxcoeff]=max(R12coeff);
 tmaxcoeff = tau(imaxcoeff);
 
