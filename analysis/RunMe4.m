@@ -9,65 +9,21 @@ ShowFigs            = [];
 
 % Subjects{1}         = {'mj','mt','os','dl','jw','ab','ff','db','mr','jp','jl','sc','fn','rr','bg','rl','br','jmj','ltt','rbb','hjh','kcw','nm','na','lvv','stt','yhh','att'}; % tk_aa and sb_mpl knew each other
 % Subjects{2}         = {'cd','hs','bs','fb','ka','va','bp','jo','sc','jt','lm','pc','kb','lw','ra','td','dw','slj','aas','scc','amm','cg','ec','emm','ell','akk','jgg','jcc'};
-Subjects{1}         = {'mj','mt','os','dl','jw','ab','ff','db','mr','jp','jl','sc','fn','rr','bg','rl','br','jmj','ltt','rbb','hjh','kcw','nm','na','att'}; % tk_aa and sb_mpl knew each other
-Subjects{2}         = {'cd','hs','bs','fb','ka','va','bp','jo','sc','jt','lm','pc','kb','lw','ra','td','dw','slj','aas','scc','amm','cg','ec','emm','jcc'};
-maxTrialNums        = [30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30]; % some didn't finish the experiment in time
-SwitchedCondition   = [0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0];
+Subjects{1}         = {'35','94s','233','eli','jkc','m7r'};
+Subjects{2}         = {'sasen','eli','ss5','3u1','sasen','ss'};
+maxTrialNums        = 39*ones(1,length(Subjects{1}));
+SwitchedCondition   = [0 0 0 ones(1,6) zeros(1,6) ones(1,6) zeros(1,6) ones(1,6) zeros(1,6)];
 
-QuestNames = {'Gender','Height','Age','Empathy','Self-esteem','Attraction','Risk','Dominance'};
-
-Questionnaire = [];
-Questionnaire(1,:,1) = [0   0   1   1   0    0    1   1   0     1    0   0    1    0   0   1    1    0 0 0 0 0 0 0 0 0 0 0]; % 0 = female, 1 = male
-Questionnaire(1,:,2) = [0   0   1   1   1    0    0   0   1     1    0   1    0    0   0   1    1    0 0 0 0 0 0 0 0 0 0 0]; 
-
-Questionnaire(2,:,1) = [5.7 5.8 6.0 5.7 5.9  5.5  5.7 6.0 5.3   5.8  5.0 5.3  5.11 5.6 5.4 5.10 5.11 0 0 0 0 0 0 0 0 0 0 0]; % height
-Questionnaire(2,:,2) = [5.5 5.5 5.7 5.7 5.8  5.0  5.8 5.0 5.8   5.8  5.6 5.10 5.10 5.8 5.1 5.8  6.3  0 0 0 0 0 0 0 0 0 0 0]; % 
- 
-Questionnaire(3,:,1) = [32  25  22  20  22   20   29  20  22    24   19  21   20   19  19  20   25   0 0 0 0 0 0 0 0 0 0 0]; % age
-Questionnaire(3,:,2) = [25  28  22  21  29   29   22  20  19    19   21  19   20   18  18  19   28   0 0 0 0 0 0 0 0 0 0 0]; % 
-
-Questionnaire(4,:,1) = [63  61  62  47  64   66   69  52  71    49   66  61   55   68  68  66   61   0 0 0 0 0 0 0 0 0 0 0]; % toronto empathy questionnaire
-Questionnaire(4,:,2) = [43  65  59  63  63   67   69  58  58    57   65  69   71   68  72  62   57   0 0 0 0 0 0 0 0 0 0 0]; % 
-
-% PEOPLE MIGHT HAVE SWITCHED QUESTIONNAIRE RATINGS HERE!
-Questionnaire(5,:,1) = [45  37  44  42  47   50   48  45  34    11   34  40   46   50  41  46   41   0 0 0 0 0 0 0 0 0 0 0]; % Rosenberg self-esteem scale
-Questionnaire(5,:,2) = [15  35  50  44  46   31   44  39  40    42   50  37   32   39  39  39   40   0 0 0 0 0 0 0 0 0 0 0]; % 
-
-Questionnaire(6,:,1) = [44  45  60  48  40   61   55  48  54    44   60  48   51   60  58  53   49   0 0 0 0 0 0 0 0 0 0 0]; % Interpersonal attraction scale
-Questionnaire(6,:,2) = [53  45  70  45  62   55   52  54  56    51   73  51   58   60  54  57   50   0 0 0 0 0 0 0 0 0 0 0]; % 
-
-Questionnaire(7,:,1) = [538 123 887 437 726  456  102 409 270   1130 48  730  636  222 636 1414 759  0 0 0 0 0 0 0 0 0 0 0]; % Adolescent risk-taking questionnaire
-Questionnaire(7,:,2) = [327 126 340 165 1391 1105 783 493 315   217  392 133  655  246 42  192  1459 0 0 0 0 0 0 0 0 0 0 0]; % 
-
-Questionnaire(8,:,1) = [52  63  63  62  62   65   58  73  51    37   49  61   62   66  55  64   54   0 0 0 0 0 0 0 0 0 0 0]; % Dominance-prestige scale
-Questionnaire(8,:,2) = [30  58  64  63  64   48   60  51  58    60   73  62   56   58  57  58   52   0 0 0 0 0 0 0 0 0 0 0]; % 
-
-Questionnaire = Questionnaire(:,1:length(Subjects{1}),:)
-screenSize = [35 46];
-
-% transform length of individuals
-for s = 1:length(Subjects{1})
-    for t = 1:2
-        if ( isfinite(Questionnaire(2,s,t)) )
-            tempQ = num2str(Questionnaire(2,s,t));
-            if ( length(tempQ) == 1 & isfinite(tempQ) )
-                Questionnaire(2,s,t) = str2num(tempQ(1))*30.48;
-            elseif ( isfinite(tempQ) ) 
-                Questionnaire(2,s,t) = str2num(tempQ(1))*30.48 + str2num(tempQ(3:end))*2.54;
-            end
-        end
-    end
-end
-
+screenSize = [35 46];  %%% SS: need to fix?
 
 CreateHitMaps = 0; % SAVE MEMORY: 0 is no hitmaps, 1 is hitmaps aligned to screen, 2 = hitmaps aligned to tracker (hand)
 CreateData = 1;
 
 if ( CreateData )
     
-    nTrials             = 30;
+    nTrials             = maxTrialNums(1);
     
-    zPixel              = 0.0177; % size
+    zPixel              = 0.0177; % size   %%% SS: need to fix?
     
     GaborRad            = 50;
     Gabor               = repmat(normpdf(-1*GaborRad:1:GaborRad,0,2*sqrt(GaborRad)),length(-1*GaborRad:1:GaborRad),1);
@@ -137,14 +93,7 @@ if ( CreateData )
 %         disp(SwitchedCondition)
         
         for TrlNum = 1:maxTrialNums(s)
-            if exist(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
-                MatData = load(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
-            elseif exist(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithoutSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
-                MatData = load(['/Users/eshayer/Desktop/Whac-a-mole/Results/WithoutSwitchBug/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
-            elseif exist(['/Users/eshayer/Desktop/Whac-a-mole/Results/IG5/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
-                MatData = load(['/Users/eshayer/Desktop/Whac-a-mole/Results/IG5/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
-            else MatData = load(['/Users/eshayer/Desktop/Whac-a-mole/Results/SwitchedColors/' Subjects{1}{s} '_' Subjects{2}{s} '_' 't' num2str(TrlNum) '_e1.mat']);
-            end
+  	    MatData = LoadGame(Subjects{1}{s},Subjects{2}{s},1,TrlNum);
             TrialIncludedVect = (MatData.TrialList/1000)<MatData.TrialLength; % to speed the code, remove data of targets that were not present because trial was over
             
             % check for variance in X and Y across pairs
@@ -154,37 +103,12 @@ if ( CreateData )
                      
                   
             % check scores
-            if ( s < 4 ) % first three subject pairs had reverse BUG
-                if ( sum(TrlNum == [11:20]) > 0 ) % reversed! BUG
-                    
-                    %%%%% THIS IS NOT THE RIGHT WAY TO CALCULATE SCORE
-                    %%%%% BECAUSE OF BLUE TARGETS THAT ADD UP BOTH
-                    Scores(1,TrlNum,s) = MatData.ScorePlayers(2,TrlNum);
-                    Scores(2,TrlNum,s) = MatData.ScorePlayers(1,TrlNum);
-                    
-                    p1 = 2;
-                    p2 = 1;
-                    pall = [2 1];
-                    pswitch = -1;
-                else
-                    Scores(1,TrlNum,s) = MatData.ScorePlayers(1,TrlNum);
-                    Scores(2,TrlNum,s) = MatData.ScorePlayers(2,TrlNum);
-                    p1 = 1;
-                    p2 = 2;
-                    pall = [1 2];
-                    pswitch = 1;
-                end
-            else
-                Scores(1,TrlNum,s) = MatData.ScorePlayers(1,TrlNum);
-                Scores(2,TrlNum,s) = MatData.ScorePlayers(2,TrlNum);
-                p1 = 1;
-                p2 = 2;
-                pall = [1 2];
-                pswitch = 1;
-            end
-%             if ( s == 5 )
-%                 MatData.ScorePlayers
-%             end
+	    Scores(1,TrlNum,s) = MatData.ScorePlayers(1,TrlNum);
+	    Scores(2,TrlNum,s) = MatData.ScorePlayers(2,TrlNum);
+	    p1 = 1;
+	    p2 = 2;
+	    pall = [1 2];
+	    pswitch = 1;
             
             % hit frequency
             for p = 1:2
@@ -202,8 +126,8 @@ if ( CreateData )
             end
                
             
-            % convert z height to pixel
-            zMax = 10;
+            % convert z height to pixel  %%% SS: need to fix?
+            zMax = MatData.maxZ;
             MatData.TrackList{1}(3,:) = (MatData.TrackList{1}(3,:)-zMax+0.5)/zPixel; % extra 0.5 addition to get around average of table height (average z = 9.5, hit z = 10)
             MatData.TrackList{2}(3,:) = (MatData.TrackList{2}(3,:)-zMax+0.5)/zPixel; % extra 0.5 addition to get around average of table height (average z = 9.5, hit z = 10)
             
@@ -257,14 +181,17 @@ if ( CreateData )
                     countHits = countHits+1;
                     
                     % target onset
-                    tOnset = round(9.6*(MatData.TrialList(t)/MatData.TrialLength));
-                    
+%                    tOnset = round(9.6*(MatData.TrialList(t)/MatData.TrialLength));
+		    tOnset = Secs2Track(MatData.TrialList(t)/1000,MatData.TrackList{3});
+
+		    %% SS: need to fix?
                     if ( tOnset < 241 )
                         TempData        = [NaN(3,241-tOnset) MatData.TrackList{p}(:,1:tOnset+480)];
                         TempDataMiss    = [NaN(3,241-tOnset) MatData.TrackList{mod(p,2)+1}(:,1:tOnset+480)];
                     else
-                        TempData        = MatData.TrackList{p}(:,tOnset-240:tOnset+480);
-                        TempDataMiss    = MatData.TrackList{mod(p,2)+1}(:,tOnset-240:tOnset+480);
+		        tAhead = min(tOnset+480,length(MatData.TrackList{3}));
+                        TempData        = MatData.TrackList{p}(:,tOnset-240:tAhead);
+                        TempDataMiss    = MatData.TrackList{mod(p,2)+1}(:,tOnset-240:tAhead);
                     end
                     
                     % target hit moment
@@ -291,14 +218,14 @@ if ( CreateData )
                             subplot(2,1,1), plot(TempData(3,241:241+HitMoment),'r')
                             hold on
                             plot(moveOnset,TempData(3,241+moveOnset),'go')
-                            
+			    title([MatData.ppname ' ' num2str(countHits) ' (Zpos 1s before HitMoment)'])
+			    mvXYZ = TempData(:,241+moveOnset);
+                            xlabel(num2str(mvXYZ));
                             subplot(2,1,2), plot(diff(TempData(3,241:241+HitMoment)),'r')
                             hold on
                             line([1 HitMoment],[-2 -2]);
+			    title(['Zvel 1s before HitMoment'])
                             drawnow;
-                            WaitSecs(0.5);
-                            WaitForKeyPress({'SPACE'},[]);
-                            close all
                         
                             figure();
                             subplot(2,1,1)
@@ -306,13 +233,19 @@ if ( CreateData )
                             hold on
                             line([0 .625 1.25],[-2 6 -2])
                             line([0 .625 1.25]-242*(1/240),[-2 6 -2])
+			    title([MatData.ppname ' ' num2str(countHits) ' Zpos vs time'])
                             xlim([-.5 1.5]);
                             
                             subplot(2,1,2)
                             plot([-240:size(TempData,2)-242].*(1/240),abs(diff(TempData(3,:)*zPixel)))
                             xlim([-.5 1.5]);
                             hold on
+			    title('Zspeed vs time')
                             line([-.5 1.5],[2 2]*zPixel)
+			    drawnow;
+			    WaitSecs(0.5);
+                            WaitForKeyPress({'SPACE'},[]);
+                            close all
                             
                             if ( moveOnset ) % there is no moveOnset if the player is already near the target (but just missed it by a couple pixels and then just moves over the screen towards the target)
                                 
@@ -383,7 +316,7 @@ if ( CreateData )
                     
                     XTemp = MatData.LocationListX(t)-nanmean(MatData.TrackList{p}(1,tOnset-5:tOnset+5));
                     YTemp = MatData.LocationListY(t)-nanmean(MatData.TrackList{p}(2,tOnset-5:tOnset+5));
-                    ZTemp = nanmean(MatData.TrackList{p}(2,tOnset-5:tOnset+5));
+                    ZTemp = nanmean(MatData.TrackList{p}(3,tOnset-5:tOnset+5));
                     
 %                     [Th,R] = cart2pol(XTemp,YTemp);
 %                     HitEucDistFromStart(TrlNum,countHits,pall(p),s) = R;
@@ -452,14 +385,17 @@ if ( CreateData )
                 
                 % interpolate RT for cross corr
                 idxFinite                           = find(isfinite(rtHitAll{p}));
-                pI                                  = nan(1,length(rtHitAll{p}));
-                pI(min(idxFinite):max(idxFinite))   = interp1(idxFinite,rtHitAll{p}(idxFinite),min(idxFinite):max(idxFinite),'cubic');
-                rtHitAll{p} = pI;
+		if length(idxFinite) > 1
+		  pI                                  = nan(1,length(rtHitAll{p}));
+		  pI(min(idxFinite):max(idxFinite))   = interp1(idxFinite,rtHitAll{p}(idxFinite),min(idxFinite):max(idxFinite),'cubic');
+		  rtHitAll{p} = pI;
+		end
 
             end
             vect = isfinite(rtHitAll{1}) & isfinite(rtHitAll{2});
-            rtHitCrossCorr(TrlNum,:,s) = xcorr(rtHitAll{1}(vect),rtHitAll{2}(vect),260)/sum(vect);
-            
+	    if sum(vect) > 0
+	      rtHitCrossCorr(TrlNum,:,s) = xcorr(rtHitAll{1}(vect),rtHitAll{2}(vect),260)/sum(vect);
+            end
         end
         
         HitDist(:,:,1,s) = 768-HitDist(:,:,1,s); % flip for player 1 because he/she was on other side of table
