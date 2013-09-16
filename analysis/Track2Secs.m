@@ -1,2 +1,5 @@
 function secs = Track2Secs(idx,tracktime)
-secs = tracktime(idx)/240;
+if idx==0
+  secs = 0;
+else
+  secs = tracktime(idx)/240;
