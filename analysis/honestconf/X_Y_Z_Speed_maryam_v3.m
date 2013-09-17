@@ -6,8 +6,8 @@ close all
 clc
 
 if nargin<1
-    subj1='35';
-    subj2='sasen';
+    subj1='de3';
+    subj2='789';
     minz=0;
 end;
 
@@ -19,7 +19,7 @@ moveinddif=15;
 pixinch=18.189/1024;
 figon=1;
 savedata=0;
-for trial=1%:length(D)
+for trial=25%:length(D)
     trial
     close all
     colorlist='gyrmbk';
@@ -37,6 +37,7 @@ for trial=1%:length(D)
     Z{2}=datasubj2(3,:)-minz;
     
     for isubj=1:2
+        
         %get the hits as registered by the computer
         moleregnumber{isubj}=find(triallist(7,:)>0&triallist(6,:)==isubj);
         hitgamereg{isubj}=round(triallist(7,moleregnumber{isubj}).*trackrate);
@@ -108,7 +109,7 @@ for trial=1%:length(D)
         for iback=1:nback
             multmxback(iback*length(S{isubj})+1:length(S{isubj})+1:end)=1;
         end
-        %the time range to check before hit for the launch point
+        %Determining the real hit points based on a z and speed threshold
         hitpointsInd{isubj}=find(Z{isubj}(2:end)<0.5 & S{isubj}<pixinch*2 & ~((Z{isubj}(2:end)<0.5 & S{isubj}<pixinch*2)*multmxback));
         clear multmxback
         
@@ -132,7 +133,8 @@ for trial=1%:length(D)
             moledistance=sqrt((newtriallist(2,:)-time(curhitind)).^2+(newtriallist(4,:)-X{isubj}(curhitind)).^2+(newtriallist(5,:)-Y{isubj}(curhitind)).^2);
             [~,molehitind]=min(moledistance);
             
-            %determining the launch point for each hit point based on peak z position
+            %determining the launch point for each hit point based on the
+            %last peak z position before the hit
             if ~isempty(molehitind) && (ihit==1 || (ihit>1 && ~any(molelistind{isubj}(ihit,1)==molelistind{isubj}(1:ihit-1,1))))
                 
                 molelistind{isubj}(ihit,:)=newtriallist(:,molehitind);
