@@ -1,11 +1,9 @@
-function [trl,replayHitList_t, replayHitList_p] = ReplayWAM(resultsFile)
+function [replayHitList_t, replayHitList_p] = ReplayWAM(trl)
 % REPLAYWAM   Replay a (fullscreen) trial of Whac-a-mole
 %   Summer 2013 // Created by Sasen
-%   eg:  trl = ReplayWAM(resultsFile)
-%   resultsFile: (string) path to a whac-a-mole .mat file with 1 trial
+%   [replayHitList_t, replayHitList_p] = ReplayWAM(trl)
 %   trl: (workspace) trl.VARNAME accesses all the saved variables
-
-trl = load(resultsFile);
+%   replayHitList (arrays): _t = time mole was hit, _p = hitting player #
 
 KbName('UnifyKeyNames');
 
@@ -107,7 +105,7 @@ end
 
 vbl = Screen('Flip', window);
 trackedNow = GetSecs;
-tStart          = GetSecs;
+tStart     = trackedNow;
 targetFeedback  = [];    
 targetNum       = ones(1,trl.MaxTargetsOnScreen);
 targetHit       = zeros(1,trl.MaxTargetsOnScreen);
@@ -115,6 +113,7 @@ playerHit       = zeros(1,trl.MaxTargetsOnScreen);
 targetShown     = zeros(1,trl.MaxTargetsOnScreen);
 replayHitList_t   = zeros(trl.MaxTargetsOnScreen,trl.nTargetOnsets);
 replayHitList_p   = zeros(trl.MaxTargetsOnScreen,trl.nTargetOnsets);
+replayScore = [0 0];  % [p1 p2]
 while ( (GetSecs-tStart < trl.TrialLength))         
 
     tFrame = GetSecs;
@@ -171,7 +170,7 @@ while ( (GetSecs-tStart < trl.TrialLength))
         end
         WaitSecs('UntilTime', trackedNow+1/trl.RecordHz);  % avoid buffer underflow
         trackedNow = GetSecs;
-        TrackStamp = round((trackedNow-tStart)*240);
+        TrackStamp = Secs2Track(max(trackedNow-tStart,trl.TrackList{3}(1)/240),trl.TrackList{3});  % prior to 1st received tracker frame, use that first frame anyway
         Pos1 = trl.TrackList{trl.PlayerLeftIdx}(:,TrackStamp);
         Pos2 = trl.TrackList{trl.PlayerRightIdx}(:,TrackStamp);
 
@@ -226,11 +225,11 @@ while ( (GetSecs-tStart < trl.TrialLength))
                         targetHit(i) = 0;
                     end
 
-%                         % if target is hit, change score
-%                         if ( targetHit(i) > 0 )
-%                             ScorePlayers(playerHit(i),trl.TrlNum) = ScorePlayers(playerHit(i),trl.TrlNum)+trl.OutComePlayers(1,trl.MoleTypeList(i,targetNum(i)));
-%                             ScorePlayers(mod(playerHit(i),2)+1,trl.TrlNum) = ScorePlayers(mod(playerHit(i),2)+1,trl.TrlNum)+trl.OutComePlayers(2,trl.MoleTypeList(i,targetNum(i)));
-%                         end
+                        % if target is hit, change score
+                        if ( targetHit(i) > 0 )
+			  replayScore(playerHit(i)) = replayScore(playerHit(i))+trl.OutComePlayers(1,trl.MoleTypeList(i,targetNum(i)));
+			  replayScore(mod(playerHit(i),2)+1) = replayScore(mod(playerHit(i),2)+1)+trl.OutComePlayers(2,trl.MoleTypeList(i,targetNum(i)));
+			end
                 end
             end
         else
@@ -243,8 +242,8 @@ while ( (GetSecs-tStart < trl.TrialLength))
     Screen('FrameOval', window, [255 255 255], CenterSq(xPos1,yPos1,trl.HitSize) );                
     Screen('FrameOval', window, [255 255 255], CenterSq(xPos2,yPos2,10) );                
     Screen('FrameOval', window, [255 255 255], CenterSq(xPos2,yPos2,trl.HitSize) );                
-    DrawText(window,{num2str(zPos1)},{[255 255 255]},20,25,0,0); 
-    DrawText(window,{num2str(zPos2)},{[255 255 255]},20,125,0,0);
+%    DrawText(window,{num2str(zPos1)},{[255 255 255]},20,25,0,0); 
+%    DrawText(window,{num2str(zPos2)},{[255 255 255]},20,125,0,0);
 
     vbl = Screen('Flip', window, vbl+0.5*(1/trl.ScrHz), [], 1); % update screen
 end  %%% timepoints loop (for M timepoints within a trial)
@@ -253,30 +252,32 @@ Screen('FillRect', window, trl.BGCol); % draw background
 Screen('Flip', window);
 
 Screen('FillRect', woff, [0 0 0]); % black bg for feedback pane
-PlayerLeftScore = trl.ScorePlayers(trl.PlayerLeftIdx,trl.TrlNum);
-PlayerRightScore = trl.ScorePlayers(trl.PlayerRightIdx,trl.TrlNum);
+PlayerLeftScore = trl.PlayerLeftScore;
+PlayerRightScore = trl.PlayerRightScore;
+replayLeftScore = replayScore(trl.PlayerLeftIdx);
+replayRightScore = replayScore(trl.PlayerRightIdx);
 
 if (PlayerLeftScore > PlayerRightScore )
     DrawText(window,{'YOU WIN!'},{[0 255 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/6,0);
     DrawText(woff,{'YOU LOSE!'},{[255 0 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/6,0);        
-    DrawText(window,{['YOUR SCORE IS  ' num2str(PlayerLeftScore)]},{[0 255 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
-    DrawText(window,{['YOUR OPPONENT GOT  ' num2str(PlayerRightScore)]},{[255 0 0]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
-    DrawText(woff,{['YOUR SCORE IS  ' num2str(PlayerRightScore)]},{[255 0 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
-    DrawText(woff,{['YOUR OPPONENT GOT  ' num2str(PlayerLeftScore)]},{[0 255 0]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
+    DrawText(window,{['YOUR SCORE IS  ' num2str(PlayerLeftScore) ' redo ' num2str(replayLeftScore)]},{[0 255 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
+    DrawText(window,{['YOUR OPPONENT GOT  ' num2str(PlayerRightScore) ' redo ' num2str(replayRightScore)]},{[255 0 0]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
+    DrawText(woff,{['YOUR SCORE IS  ' num2str(PlayerRightScore) ' redo ' num2str(replayRightScore)]},{[255 0 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
+    DrawText(woff,{['YOUR OPPONENT GOT  ' num2str(PlayerLeftScore) ' redo ' num2str(replayLeftScore)]},{[0 255 0]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
 elseif ( PlayerLeftScore < PlayerRightScore )
     DrawText(window,{'YOU LOSE!'},{[255 0 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/6,0);
     DrawText(woff,{'YOU WIN!'},{[0 255 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/6,0);      
-    DrawText(window,{['YOUR SCORE IS  ' num2str(PlayerLeftScore)]},{[255 0 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
-    DrawText(window,{['YOUR OPPONENT GOT  ' num2str(PlayerRightScore)]},{[0 255 0]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
-    DrawText(woff,{['YOUR SCORE IS  ' num2str(PlayerRightScore)]},{[0 255 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
-    DrawText(woff,{['YOUR OPPONENT GOT  ' num2str(PlayerLeftScore)]},{[255 0 0]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
+    DrawText(window,{['YOUR SCORE IS  ' num2str(PlayerLeftScore) ' redo ' num2str(replayLeftScore)]},{[255 0 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
+    DrawText(window,{['YOUR OPPONENT GOT  ' num2str(PlayerRightScore) ' redo ' num2str(replayRightScore)]},{[0 255 0]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
+    DrawText(woff,{['YOUR SCORE IS  ' num2str(PlayerRightScore) ' redo ' num2str(replayRightScore)]},{[0 255 0]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
+    DrawText(woff,{['YOUR OPPONENT GOT  ' num2str(PlayerLeftScore) ' redo ' num2str(replayLeftScore)]},{[255 0 0]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
 else % draw
     DrawText(window,{'DRAW!'},{[0 0 255]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/6,0);
     DrawText(woff,{'DRAW!'},{[0 0 255]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/6,0);       
-    DrawText(window,{['YOUR SCORE IS  ' num2str(PlayerLeftScore)]},{[0 0 255]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
-    DrawText(window,{['YOUR OPPONENT GOT  ' num2str(PlayerRightScore)]},{[0 0 255]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
-    DrawText(woff,{['YOUR SCORE IS  ' num2str(PlayerRightScore)]},{[0 0 255]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
-    DrawText(woff,{['YOUR OPPONENT GOT  ' num2str(PlayerLeftScore)]},{[0 0 255]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
+    DrawText(window,{['YOUR SCORE IS  ' num2str(PlayerLeftScore) ' redo ' num2str(replayLeftScore)]},{[0 0 255]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
+    DrawText(window,{['YOUR OPPONENT GOT  ' num2str(PlayerRightScore) ' redo ' num2str(replayRightScore)]},{[0 0 255]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
+    DrawText(woff,{['YOUR SCORE IS  ' num2str(PlayerRightScore) ' redo ' num2str(replayRightScore)]},{[0 0 255]},0.5*trl.ScrRes(1)/6,trl.ScrRes(2)/3,0);
+    DrawText(woff,{['YOUR OPPONENT GOT  ' num2str(PlayerLeftScore) ' redo ' num2str(replayLeftScore)]},{[0 0 255]},0.5*trl.ScrRes(1)/6,2*trl.ScrRes(2)/3,0);
 end
 
 Screen('DrawTexture', window, woff, [], [trl.ScrRes(1)/2 0 trl.ScrRes], 180);
@@ -284,3 +285,5 @@ Screen('Flip', window);
 WaitSecs(5);
 %ShowCursor('Arrow');
 Screen CloseAll;
+replayRightScore
+replayLeftScore

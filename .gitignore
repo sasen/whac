@@ -16,4 +16,8 @@ helpers/CheckRes.m
 helpers/CorrectClut.m
 helpers/RemoveListening.m
 analysis/*~
+analysis/plotAnimated/*.gif
+analysis/*.mat
+analysis/*.fig
+analysis/*.png
 analysis/Results
