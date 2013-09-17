@@ -11,7 +11,9 @@ if nargin<1
     minz=0;
 end;
 
+cd .. 
 [D,Db] = LoadExpt(subj1,subj2,1);
+cd honestconf
 
 moveinddif=15;
 pixinch=18.189/1024;

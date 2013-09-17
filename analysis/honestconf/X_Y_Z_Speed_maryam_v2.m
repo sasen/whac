@@ -6,13 +6,14 @@ clc
 subj1='rim';
 subj2='kd1';
 
-[D,Db] = LoadExpt(subj1,subj2,1);
+cd ..
+[D,Db] = LoadGame(subj1,subj2,1,1);
 
 moveinddif=24;
 pixinch=18.189/1024;
 % [datalaunchhita,datalaunchhitb]=gethitlaunch(D,Db,1);
 figon=1;
-for trial=1:length(D)
+for trial=1%:length(D)
     trial
     close all
     colorlist='gyrmbk';
