@@ -19,4 +19,5 @@ for t=1:f1.nMaxTrials  % load each trial
   E{t}.TrackList = xyzt;
   E{t}.mole = mole;
   Eb(:,t) = mole;  % optional output for backwards compatibility
+  E{t} = MakeInterpolants(E{t});
 end  % for each trial
