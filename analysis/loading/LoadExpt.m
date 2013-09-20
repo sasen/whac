@@ -6,6 +6,7 @@ function [E,Eb] = LoadExpt(s1,s2,ExpNum,varargin)
 %   varargin = OPTIONAL arguments (eg variable names) to 'load'
 %   E: 1 x numTrl cell of loaded trial data structs, with
 %   -- no nans in TrackList 
+%   -- griddedInterpolants of TrackList{1:2} called p1x, p1y, ..., p2z.
 %   -- mole: 2x1 cell of flattened mole info (fullscreen games only need mole{1})
 %   Eb: 2 x numTrl cell of flattened mole info (optional output! E has mole)
 
