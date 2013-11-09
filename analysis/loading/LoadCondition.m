@@ -29,5 +29,8 @@ end
 
 for i = 1:numPairs
   disp([condition ' ' num2str(i) ' of ' num2str(numPairs)]);
+  if strcmp(pairList{1}{i},'finaltest')
+    pairList{1}{i} = 'ss';
+  end
   Cond(i,:) = LoadExpt(pairList{1}{i},pairList{2}{i},ExpNum,varnames{:});
 end
