@@ -16,10 +16,10 @@ ti = find(isfinite(t));
 t = t(ti);
 
 %% interpolants
-h.p1x = griddedInterpolant(t,h.TrackList{1}(1,ti));
-h.p1y = griddedInterpolant(t,h.TrackList{1}(2,ti));
-h.p1z = griddedInterpolant(t,h.TrackList{1}(3,ti));
-h.p2x = griddedInterpolant(t,h.TrackList{2}(1,ti));
-h.p2y = griddedInterpolant(t,h.TrackList{2}(2,ti));
-h.p2z = griddedInterpolant(t,h.TrackList{2}(3,ti));
+h.p1x = griddedInterpolant(t,h.TrackList{1}(1,ti),'spline');
+h.p1y = griddedInterpolant(t,h.TrackList{1}(2,ti),'spline');
+h.p1z = griddedInterpolant(t,h.TrackList{1}(3,ti),'spline');
+h.p2x = griddedInterpolant(t,h.TrackList{2}(1,ti),'spline');
+h.p2y = griddedInterpolant(t,h.TrackList{2}(2,ti),'spline');
+h.p2z = griddedInterpolant(t,h.TrackList{2}(3,ti),'spline');
 h.t = t;
