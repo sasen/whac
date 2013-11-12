@@ -32,9 +32,13 @@ subplot(3,1,1),plot(t(2:end),xyzin(3,2:end)/2,'r.--')
 axis([s e 0 0.45]);
 legend('sumdin','S/30','sumsqin','z/2');
 
-subplot(3,1,2),plot(t(3:end),zacc,'r.-');
+subplot(3,1,2),plot(t(3:end),zacc,'r.-');  hold on;
 axis tight;
 ylabel('z accel')
+for l=loc
+  subplot(3,1,2),plot(l,zacc(l-s),'bx','MarkerSize',15);
+end
+
 subplot(3,1,3),plot(t(2:end),suminv,'k.-');
 axis([s e 0 2000]);
 ylabel('sum of inverse-speed')
