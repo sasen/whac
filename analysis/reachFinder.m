@@ -1,12 +1,13 @@
 function reachOnsets = reachFinder(hitOnsets,anded)
 
 for oo=1:length(hitOnsets)
-  onset = hitOnsets(oo);
-  inHit = anded(onset);
-  backwards = anded(1:onset-1);
+  hOn = hitOnsets(oo)-1; %% -1 to index into anded (which is diffed)
+  inHit = anded(hOn);
+  backwards = anded(1:hOn-1);
   if inHit
     preHit = find(backwards==0,1,'last');
     backwards = backwards(1:preHit);
   end
-    reachOnsets(oo) = find(backwards==1,1,'last');
+    lastLow = find(backwards==1,1,'last')+1;  %% +1 because =1 is too far
+    reachOnsets(oo) = lastLow+1;  %% +1 to remove effects of diff
 end

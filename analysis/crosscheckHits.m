@@ -1,15 +1,15 @@
-function crosscheckedHitOnsets = crosscheckHits(hitBinary,loc)
+function crosscheckedHitOnsets = crosscheckHits(hitBinary,accPeaks)
 
-hitOn = find(diff(hitBinary)==1);
+hitOn = find(diff(hitBinary)==1)+2;
 
 
 for oo=1:length(hitOn)
-  onset = hitOn(oo);
-  accPeak = loc(find(abs(loc-onset)<25,1,'last'));
-  if isempty(accPeak)
-    accPeak = onset;
-    loc = sort([loc onset]);
+  hOn = hitOn(oo);
+  nearestPeak = accPeaks(find(abs(accPeaks-hOn)<25,1,'last'));
+  if isempty(nearestPeak)
+    nearestPeak = hOn;
+    accPeaks = sort([accPeaks hOn]);
   end
-  startTimes(oo,:) = [onset accPeak];
+  startTimes(oo,:) = [hOn nearestPeak];
 end
 crosscheckedHitOnsets = unique(startTimes(:,2));
