@@ -1,35 +1,34 @@
 function [accel_ddT, peakloc_T] = accelPeaks(pos3D,dim,thresh,scaleBy,useAbsSpeed)
+%function [accel_ddT, peakloc_T] = accelPeaks(pos3D,dim,thresh,scaleBy,useAbsSpeed)
+% accelPeaks: Get acceleration & find height-thresholded peaks for hit detection
+% pos3d: 3xN xyz position timecourse array (interpolated > 2nd order)
+% dim: which dimension's acceleration (1/2/3 ~ x/y/z)
+% thresh: scalar sent to findpeaks's MINPEAKHEIGHT (possibly scaled)
+% scaleBy: return acceleration scaled (by, say 1000) for easier display
+% useAbsSpeed: (boolean) use speed instead of velocity
+%-----
+% accel_ddt: 1x(N-2) acceleration trajectory (possibly scaled)
+% peakloc_T: indices of peaks, shifted by 2 (to plot against position)
 
-% HEREHEREHERE
-if nargin <= 5
-  pos1D = pos3D(dim,:);
-  if nargin <= 4
-    useAbsSpeed = 1;
-  else
-    assert((useAbsSpeed==0) || (useAbsSpeed==1),'%s: useAbsSpeed must be logical scalar.',mfilename)
-    help mfilename
-  end %% 4 or less
-else
+%% Processing inputs
+if nargin ~= 5
   help mfilename
-  error('%s: %d is too many inputs!',mfilename,nargin);
+  error('%s: wrong number of inputs (%d)!',mfilename,nargin);
 end 
 
-switch nargin
-  case 5
+pos1D = pos3D(dim,:);
+firstD = diff(pos1D);
 
-    
- case 2
- case 3
-
-
+if useAbsSpeed == 1
+  firstD = abs(firstD);
+  accelsign = -1;
+elseif useAbsSpeed == 0
+  accelsign = 1;
+else
+  help mfilename
+  error('%s: useAbsSpeed must be 0 or 1 (%d)!',mfilename,useAbsSpeed);
 end
 
-
-%% QUESTION: can we find hiton & hitoff separately?
-
-% zaccv = diff(diff(xyzin(3,:)));
-% [pkv,locv]=findpeaks(zaccv,'MINPEAKHEIGHT',0.019); 
-
-accel_ddT = 1000*diff(abs(diff(pos1D)));
-[~,loc] = findpeaks(-accel_ddT,'MINPEAKHEIGHT',19);
+accel_ddT = scaleBy*diff(firstD);
+[~,loc] = findpeaks(accelsign*accel_ddT, 'MINPEAKHEIGHT', scaleBy*thresh);
 peakloc_T = loc + 2;
