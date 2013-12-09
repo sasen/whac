@@ -11,3 +11,4 @@ for oo=1:length(hitOnsets)
     lastLow = find(backwards==1,1,'last')+1;  %% +1 because =1 is too far
     reachOnsets(oo) = lastLow+1;  %% +1 to remove effects of diff
 end
+reachOnsets = reshape(reachOnsets,numel(reachOnsets),1); % column vector

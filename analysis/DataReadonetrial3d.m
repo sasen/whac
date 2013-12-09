@@ -4,11 +4,11 @@ clear all
 clc
 close all
 
-reachOns=[ 628; 707; 825; 990; 1062; 1264; 1376; 1812; 1902; 1990; 2012; 2207; 2301; 2311; 2588; 2802; 3223; 3317; 3603; 3756; 3844; 3940; 4358; 4472; 4771; 4840; 5382; 5572; 5787; 6024; 6292; 6465; 6692; 6725; 7095];
-
-hitOns =[ 683; 797; 966; 1052; 1152; 1361; 1441; 1852; 1906; 1997; 2106; 2274; 2306; 2497; 2655; 2888; 3292; 3382; 3661; 3832; 3925; 4019; 4446; 4571; 4818; 4934; 5435; 5633; 5859; 6137; 6383; 6667; 6699; 6739; 7166];
-
-reachIndicator = intervalIndicator([reachOns hitOns],7210);
+g = LoadGame('m7r','ss',1,25);
+[reachOns_p1,hitOns_p1] = parseTrajectory(g,1);
+[reachOns_p2,hitOns_p2] = parseTrajectory(g,2);
+reachIndicator_p1 = intervalIndicator([reachOns_p1 hitOns_p1], max(g.TrackList{3}));
+reachIndicator_p2 = intervalIndicator([reachOns_p2 hitOns_p2], max(g.TrackList{3}));
 
 tablez=0; % 9;
 maxz=4; % 20;
@@ -65,14 +65,19 @@ for iframe=500:3:nframes
     hold on
     scatter3(ts_s2_resamp.data(iframe-40:iframe-1,1),ts_s2_resamp.data(iframe-40:iframe-1,2),ts_s2_resamp.data(iframe-40:iframe-1,3) ,60,[1,1,0],'filled');
     hold on
-    if reachIndicator(iframe)
-      colorme=[0,1,0];
+    if reachIndicator_p1(iframe)
+      color_p1=[0,1,0];
     else
-      colorme=[0,1,1]*0.5;
+      color_p1=[0,1,1]*0.5;
     end
-    scatter3(ts_s1_resamp.data(iframe,1),ts_s1_resamp.data(iframe,2),ts_s1_resamp.data(iframe,3) ,70,colorme,'filled','s');
+    if reachIndicator_p2(iframe)
+      color_p2=[1,0,0];
+    else
+      color_p2=[1,1,0]*0.5;
+    end
+    scatter3(ts_s1_resamp.data(iframe,1),ts_s1_resamp.data(iframe,2),ts_s1_resamp.data(iframe,3) ,70,color_p1,'filled','s');
     hold on
-    scatter3(ts_s2_resamp.data(iframe,1),ts_s2_resamp.data(iframe,2),ts_s2_resamp.data(iframe,3) ,70,[1,1,0]*0.5,'filled','^');
+    scatter3(ts_s2_resamp.data(iframe,1),ts_s2_resamp.data(iframe,2),ts_s2_resamp.data(iframe,3) ,70,color_p2,'filled','^');
     hold on
     
     tinds=find(ts_s1_resamp.time(iframe)>=MatData.Targetstarttime & ts_s1_resamp.time(iframe)<=MatData.Targetendtime);
