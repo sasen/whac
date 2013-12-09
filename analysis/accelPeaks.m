@@ -1,17 +1,16 @@
-function [accel_ddT, peakloc_T] = accelPeaks(pos3D,dim,thresh,scaleBy,useAbsSpeed)
-%function [accel_ddT, peakloc_T] = accelPeaks(pos3D,dim,thresh,scaleBy,useAbsSpeed)
+function [accel_ddT, peakloc_T] = accelPeaks(pos3D,dim,thresh,useAbsSpeed)
+%function [accel_ddT, peakloc_T] = accelPeaks(pos3D,dim,thresh,useAbsSpeed)
 % accelPeaks: Get acceleration & find height-thresholded peaks for hit detection
 % pos3d: 3xN xyz position timecourse array (interpolated > 2nd order)
 % dim: which dimension's acceleration (1/2/3 ~ x/y/z)
-% thresh: scalar sent to findpeaks's MINPEAKHEIGHT (possibly scaled)
-% scaleBy: return acceleration scaled (by, say 1000) for easier display
+% thresh: scalar sent to findpeaks's MINPEAKHEIGHT
 % useAbsSpeed: (boolean) use speed instead of velocity
 %-----
-% accel_ddt: 1x(N-2) acceleration trajectory (possibly scaled)
+% accel_ddt: 1x(N-2) acceleration trajectory
 % peakloc_T: indices of peaks, shifted by 2 (to plot against position)
 
 %% Processing inputs
-if nargin ~= 5
+if nargin ~= 4
   help mfilename
   error('%s: wrong number of inputs (%d)!',mfilename,nargin);
 end 
@@ -29,6 +28,6 @@ else
   error('%s: useAbsSpeed must be 0 or 1 (%d)!',mfilename,useAbsSpeed);
 end
 
-accel_ddT = scaleBy*diff(firstD);
-[~,loc] = findpeaks(accelsign*accel_ddT, 'MINPEAKHEIGHT', scaleBy*thresh);
+accel_ddT = diff(firstD);
+[~,loc] = findpeaks(accelsign*accel_ddT, 'MINPEAKHEIGHT', thresh);
 peakloc_T = loc + 2;
