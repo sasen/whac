@@ -17,8 +17,6 @@ multmxback = spdiags(ones(lenS,nback),1:nback,lenS,lenS);  % sparse accumulator
 hitpointsInd=find(xyz(3,2:end)<0.5 & S<1 & ~((xyz(3,2:end)<0.5 & S<1)*multmxback));
 hitInd = sort(hitpointsInd);
 
-% zaccv = diff(diff(xyzin(3,:)));
-% [pkv,locv]=findpeaks(zaccv,'MINPEAKHEIGHT',0.019); %%HEREHERE find hiton and hitoff separately
 zacc = 1000*diff(abs(diff(xyzin(3,:))));
 [pk,loc]=findpeaks(-zacc,'MINPEAKHEIGHT',19);
 locT = loc + 2;
