@@ -1,17 +1,38 @@
+%% This script plots a player's hit coordinates (x,y) compared to
+%%   the target center. 
+%% Requires: analyze_xHitErr must precede.
 
-trials = [4:21];
-for trl = trials
-  if trl==min(trials)
-    figure;
-    subplot(2,2,2),compass([0],[-42],'k'); hold on
-    subplot(2,2,2),compass([-42],[0],'k');
-    subplot(2,2,4),compass([0],[42],'k'); hold on
-    subplot(2,2,4),compass([42],[0],'k');
-  end
-  
-  subplot(1,2,1),title('Condition 1: Distractor-Free')
-  myg = EDist{trl}; game = 4;
-  xRes = myg.ScrRes(1)/2; yRes = myg.ScrRes(2);
+game = 4;  % Change this for different conditions
+%% Access the right condition & player
+if game==1
+  CondGames = EPair;
+  plottitle = 'Condition 3: Paired (subject)';
+elseif game==2
+  CondGames = EPair;
+  plottitle = 'Condition 3: Paired (confed)';
+elseif game==3
+  CondGames = ESolo;
+  plottitle = 'Condition 2: Solo Splitgame';
+elseif game==4
+  CondGames = EDist;
+  plottitle = 'Condition 1: Distractor-free';
+end
+
+
+%% Setup figure 
+%    Sets axis scaling on the compass plots
+%    Black up/down arrow points toward player
+%    Black left/right arrow points toward midline
+figure;
+subplot(2,2,2),compass([0],[-42],'k'); hold on
+subplot(2,2,2),compass([-42],[0],'k');
+subplot(2,2,4),compass([0],[42],'k'); hold on
+subplot(2,2,4),compass([42],[0],'k');
+subplot(1,2,1),title(plottitle);
+
+for trl = [4:21]   %% splitgame-specific
+  myg = CondGames{trl};
+  xRes = myg.ScrRes(1)/2; yRes = myg.ScrRes(2);  %% splitgame-specific
   myt = myg.t; %[1:800]; %myg.t;
   
   hits = hitXYZs{trl,game};
@@ -33,7 +54,7 @@ for trl = trials
   
   subplot(1,2,1), hold on;
   % -Y = like psychtoolbox screen coordinates
-%  plot(myg.p1x(myt),-myg.p1y(myt),col);
+  %  plot(myg.p1x(myt),-myg.p1y(myt),col);
   hits(2,:) = -hits(2,:);  
   mCtrs(2,:) = -mCtrs(2,:);
   axis([0 xRes*2 -yRes 0])  
