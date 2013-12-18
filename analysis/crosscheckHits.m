@@ -1,7 +1,10 @@
 function crosscheckedHitOnsets = crosscheckHits(hitBinary,accPeaks)
 
 hitOn = find(diff(hitBinary)==1)+2;
-
+if length(hitOn)==0
+  crosscheckedHitOnsets = [];
+  return
+end
 
 for oo=1:length(hitOn)
   hOn = hitOn(oo);

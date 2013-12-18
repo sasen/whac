@@ -20,6 +20,10 @@ end
 for pl = players
   [~, ~, ~, xyz{pl}] = interpolatePlayer(g,pl);  
   [~, hitOns] = parseTrajectory(g,pl);
+  if length(hitOns)==0
+    hOns{pl}=[]; hMole{pl}=[]; hXYZ{pl}=[]; moleXY{pl}=[]; diffX{pl}=[];
+    continue;
+  end
 
   if g.ExpNum == 1
     mole = g.mole{1};

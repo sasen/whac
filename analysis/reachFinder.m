@@ -1,5 +1,10 @@
 function reachOnsets = reachFinder(hitOnsets,anded)
 
+if length(hitOnsets)==0
+  reachOnsets = [];
+  return
+end
+
 for oo=1:length(hitOnsets)
   hOn = hitOnsets(oo)-1; %% -1 to index into anded (which is diffed)
   inHit = anded(hOn);

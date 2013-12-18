@@ -10,11 +10,18 @@ function [E,Eb] = LoadExpt(s1,s2,ExpNum,varargin)
 %   -- mole: 2x1 cell of flattened mole info (fullscreen games only need mole{1})
 %   Eb: 2 x numTrl cell of flattened mole info (optional output! E has mole)
 
-f1=load(GameFName(s1,s2,ExpNum,1));  % load first one to get some info
+[~,nMats] = GameFName(s1,s2,ExpNum,1);  % look at first one to get some info
 
-Eb = cell(2,f1.nMaxTrials);   % optional output
-for t=1:f1.nMaxTrials  % load each trial
-  g=load(GameFName(s1,s2,ExpNum,t));
+Eb = cell(2,nMats);   % optional output
+for t=1:nMats  % load each trial
+  try
+    g=load(GameFName(s1,s2,ExpNum,t));
+  catch ME
+    if t < 21  % handling one restarted subj (too many trials)
+      rethrow(ME);
+    end
+    break
+  end
 
   if length(varargin) > 0
     if strcmp(varargin{1},'all')

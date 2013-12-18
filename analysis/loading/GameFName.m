@@ -1,10 +1,11 @@
-function fname = GameFName(s1,s2,e,t)
+function [fname, nMats] = GameFName(s1,s2,e,t)
 % Construct filename for a single trial/game from subject IDs, exp #, trial #
 %   s1 (string) = playerID1
 %   s1 (string) = playerID2
 %   e (num/str) = experiment number, 
 %   t (integer) = trial number
 %   fname (string)= filename (including relative path) to game's .mat
+%   nMats (int) = # of matfiles found in relevant directory (optional)
 
 dirbase = ['../../WAM/'];  % for compatibility with git & dropbox users
 pairname = [s1 '_' s2];
@@ -33,6 +34,11 @@ elseif e=='4'
     matdir=[dirbase gameType '/' pairname '/'];
 end
 assert(exist(matdir,'dir')==7, '%s: Cannot find directory %s.',mfilename,matdir);
+
+%% if nargout > 1 ?
+dirContents = what(matdir);
+nMats = size(dirContents.mat,1);
+% matNames = dirContents.mat; %%% Could use to assert presence of fname
 
 fname = [matdir pairname '_t' num2str(t) '_e' e '.mat'];
 

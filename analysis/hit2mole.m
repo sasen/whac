@@ -8,6 +8,11 @@ function hitMole = hit2mole(hOns,mole,xyzpx,sframe)
 %--
 % hitMole: corresponding column of mole that was hit
 
+if length(hOns)==0
+  hitMole = [];
+  return
+end
+
 durMult = 1.25; % search ahead this many TargetPresTime lengths (extra 312ms)
 fps = 240;   %% frames per second
 tgtDur = 1.25;  %% target duration in s (or, g.TargetPresTime/1000)
