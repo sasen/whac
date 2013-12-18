@@ -41,8 +41,6 @@ end  %% accumulate EDist
 
 edges = [-inf,linspace(-80,80,41),inf];
 figure();
-%%% HEREHEREHERE think about sideswitching
-
 players = [1 2 1 1];
 side1 = [10:15];
 side2 = [4:9 16:21];
@@ -59,10 +57,10 @@ for pl=1:4
     counts(:,pl,sens) = histc(xErrs, edges);
     subplot(2,4,plotnum),bar([-100 edges(2:end-1) 100],counts(:,pl,sens),'histc');
     title(titlestring);
-    axis tight;
-    summary(plotnum,:) = [pl sens mean(xErrs) median(xErrs) std(xErrs) skewness(xErrs,0) kurtosis(xErrs,0)];
+    axis tight; hold on;
+    plot(0,0,'y+','MarkerSize',15,'LineWidth',2);
+    summary(:,pl,sens) = [mean(xErrs) std(xErrs)]';
   end
 end
-
-scorePerCond = [sum(EPair{end}.ScorePlayers') sum(ESolo{end}.ScorePlayers(1,:)) sum(EDist{end}.ScorePlayers(1,:))];
-hitsPerCond = sum(counts);
+summary
+hitsPerCond = sum(counts)

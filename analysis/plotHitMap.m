@@ -2,11 +2,19 @@
 %%   the target center. 
 %% Requires: analyze_xHitErr must precede.
 
-game = 4;  % Change this for different conditions
+game = 1;  % Change this for different conditions
+trials = [4:21]; % Splitgame-specific
+
 %% Access the right condition & player
 if game==1
   CondGames = EPair;
   plottitle = 'Condition 3: Paired (subject)';
+elseif game==0
+  CondGames = EValidate;
+  trials = [7 9 11];   % [4:21]; % Splitgame-specific
+  player = 2;
+  plottitle = ['Midline: Player ' num2str(player) ' Trl [7 9 11] Sens [1 1 2]'];
+  game = player;
 elseif game==2
   CondGames = EPair;
   plottitle = 'Condition 3: Paired (confed)';
@@ -30,7 +38,7 @@ subplot(2,2,4),compass([0],[42],'k'); hold on
 subplot(2,2,4),compass([42],[0],'k');
 subplot(1,2,1),title(plottitle);
 
-for trl = [4:21]   %% splitgame-specific
+for trl = trials
   myg = CondGames{trl};
   xRes = myg.ScrRes(1)/2; yRes = myg.ScrRes(2);  %% splitgame-specific
   myt = myg.t; %[1:800]; %myg.t;
@@ -39,7 +47,10 @@ for trl = [4:21]   %% splitgame-specific
   mCtrs = moleXYs{trl,game};
   nHits = length(hits);
   
-  ss = myg.SwitchSides;
+  ss = myg.SwitchSides; %% 1=side1, -1=side2
+  if game==2  % player2
+    ss = -ss; %% p2 starts on side2, etc
+  end
   if ss==-1        % side1 transform
     hits(1,:) = hits(1,:) + xRes;
     mCtrs(1,:) = mCtrs(1,:) + xRes;
