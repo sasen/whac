@@ -29,6 +29,10 @@ for hitnum = 1:length(hOns)
     continue;
   end
   poss = find(mOns < h & mOns > (h-trange));  %% possible moleIDs
+  if length(poss)==0   %% Can't identify this hit's mole!
+    hitMole(hitnum) = NaN;
+    continue;   % go to next hit-onset
+  end
   mposs = mole(:,poss);   %% possible moles' info
   moledist = inf(max(poss),1);
   for mmm = 1:length(poss)
