@@ -11,6 +11,9 @@ for oo=1:length(hitOnsets)
   backwards = anded(1:hOn-1);
   if inHit
     preHit = find(backwards==0,1,'last');
+    if isempty(preHit)
+      preHit = 1;   %% game start; impossible, not a real reach!
+    end
     backwards = backwards(1:preHit);
   end
     lastLow = find(backwards==1,1,'last')+1;  %% +1 because =1 is too far
