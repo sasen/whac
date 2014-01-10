@@ -20,14 +20,16 @@ PairSs = getPairsInDir('Results/RunSplitgamePaired');
 
 subjInfo = struct([]);
 for sNum = 1:length(Ss)
-  sName = Ss(sNum);
+  sName = char(Ss(sNum));
 
   %% Skip these subjects
   %% -- Add more subjects to skip here.
   %% -- Please provide the reason in a comment!
-  if strcmp(sName,'finaltest')  %% sasen's testing data
-    continue;
-  elseif strcmp(sName,'ko1')  %% need to handle switching/restart
+  switch sName
+   case {'finaltest', ... % sasen's testing data
+	 'ko1',       ... % need to handle switching/restart
+	 '723'        ... % need to handle switching/sensor problem
+	}
     continue;
   end
   
