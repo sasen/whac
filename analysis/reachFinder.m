@@ -1,4 +1,6 @@
 function reachOnsets = reachFinder(hitOnsets,anded)
+%function reachOnsets = reachFinder(hitOnsets,anded)
+% Note: hits that are before stimulus presentation starts ought to be removed before calling this function
 
 if length(hitOnsets)==0
   reachOnsets = [];
