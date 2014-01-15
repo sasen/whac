@@ -27,8 +27,7 @@ for sNum = 1:length(Ss)
   %% -- Please provide the reason in a comment!
   switch sName
    case {'finaltest', ... % sasen's testing data
-	 'ko1',       ... % need to handle switching/restart
-	 '723'        ... % need to handle switching/sensor problem
+	 'ko1'        ... % need to handle switching/restart
 	}
     continue;
   end
