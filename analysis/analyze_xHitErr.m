@@ -1,10 +1,14 @@
-function [] = analyze_xHitErr(subj)
-% function [] = analyze_xHitErr(subj)
+function [hitXErr, summary, hitsPerCond] = analyze_xHitErr(subj)
+%function [hitXErr, summary, hitsPerCond] = analyze_xHitErr(subj)
 % Tally/Plot subj's hists of hit xError over all games, by condition
-% Input: subj (struct) of a single subject, from generateSubjInfo
+% Input: 
+%   subj (struct) of a single subject, from generateSubjInfo
+%   The file saved_data/{subj.name}_parsed.mat must exist.
+% Output:
+%   hitXErr (NumTrl x 4 cell) 
+%   summary (2x4 array): mean & std of hitXErr, by condition & sensor
+%   hitsPerCond (2x4 array): number of hits per condition & sensor
 
-
-%% Ensure existence of directory for saving our work
 pwdname = pwd;
 assert(strcmp(pwdname(end-7:end),'analysis'),'%s: Run in whac/analysis/, not\n%s.',mfilename,pwdname);
 matdirname = 'saved_data';
@@ -65,5 +69,4 @@ subplot(2,2,3), ylabel('Second Sensor')
 
 suptitle(['Hit xError Histograms for Subj. ' subj.name])
 
-summary
 hitsPerCond = sum(counts)
