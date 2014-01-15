@@ -16,17 +16,16 @@ assert(strcmp(pwdname(end-7:end),'analysis'),'%s: Run in whac/analysis/, not\n%s
 matdirname = 'saved_data';
 mkdir(matdirname);  % harmless if it exists already.
 
-%% Load existing data & computations
+%% Load existing data
 subjfilename = fullfile(pwdname,matdirname,[subj.name '_data.mat']);
-parsfilename = fullfile(pwdname,matdirname,[subj.name '_parsed.mat']);
+loadfilemodded = 0;   % flag for whether we need to save this data afterward
+
 if exist(subjfilename,'file')
   load(subjfilename,'-mat');
 end
-if exist(parsfilename,'file')
-  load(parsfilename,'-mat');
-end
 
 if ~exist('EPair','var')
+  loadfilemodded = 1;
   disp(['Loading pair condition for ',subj.name]);
   opp_pnum = ~(subj.pair_pnum-1)+1;  %% opponent's player number
   switch subj.pair_pnum
@@ -36,6 +35,32 @@ if ~exist('EPair','var')
     [EPair,~] = LoadExpt(subj.opponent,subj.name,3,'all');
   end
 end
+
+if ~exist('ESolo','var')
+  loadfilemodded = 1;
+  disp(['Loading solo condition for ',subj.name]);
+  switch subj.solo_pnum
+   case 1
+    [ESolo,~] = LoadExpt(subj.name,'null',3,'all');
+   case 2
+    [ESolo,~] = LoadExpt('null',subj.name,3,'all');
+  end
+end
+
+if ~exist('EDist','var')
+  loadfilemodded = 1;
+  disp(['Loading dist condition for ',subj.name]);
+  [EDist,~] = LoadExpt(subj.name,'null',4,'all');
+end
+
+if loadfilemodded
+  disp(['Saving ' subjfilename]);
+  save(subjfilename,'subj','opp_pnum','trl','E*','-mat');
+end
+
+
+%%------- Get Hit Info for each Condition
+
 disp(['Getting pair hit info for ',subj.name]);
 for trl = 1:length(EPair)
   [hOns,hMole,hXYZ,moleXY,diffX] = getHitInfo(EPair{trl});
@@ -53,16 +78,6 @@ for trl = 1:length(EPair)
   hitXErr{trl,2} = diffX{opp_pnum};
 end
 
-
-if ~exist('ESolo','var')
-  disp(['Loading solo condition for ',subj.name]);
-  switch subj.solo_pnum
-   case 1
-    [ESolo,~] = LoadExpt(subj.name,'null',3,'all');
-   case 2
-    [ESolo,~] = LoadExpt('null',subj.name,3,'all');
-  end
-end
 disp(['Getting solo hit info for ',subj.name]);
 for trl = 1:length(ESolo)
   [hOns,hMole,hXYZ,moleXY,diffX] = getHitInfo(ESolo{trl});
@@ -74,10 +89,6 @@ for trl = 1:length(ESolo)
   hitXErr{trl,3} = diffX{subj.solo_pnum};
 end
 
-if ~exist('EDist','var')
-  disp(['Loading dist condition for ',subj.name]);
-  [EDist,~] = LoadExpt(subj.name,'null',4,'all');
-end
 disp(['Getting dist hit info for ',subj.name]);
 for trl = 1:length(EDist)
   [hOns,hMole,hXYZ,moleXY,diffX] = getHitInfo(EDist{trl});
@@ -89,5 +100,7 @@ for trl = 1:length(EDist)
   hitXErr{trl,4} = diffX{1};
 end
 
+%% Save hit info
+parsfilename = fullfile(pwdname,matdirname,[subj.name '_parsed.mat']);
 save(parsfilename,'subj','opp_pnum','trl','h*','mole*','-mat');
-save(subjfilename,'subj','opp_pnum','trl','E*','-mat');
+
