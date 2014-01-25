@@ -32,7 +32,7 @@ side1 = [10:15];  %% side1 doesn't really mean sensor1
 side2 = [4:9 16:21];
 subplotLookup = [1 0 2; 3 0 4];  %% row = sens, col = gameCond, val = plotnum
 for gameCond=[4 1 3]
-  if gameCond==2  %% this is a lie; assumes subj is p1
+  if (gameCond==1 && subj.pair_pnum==2) || (gameCond==3 && subj.solo_pnum==2)
     blocks = {side2; side1};
   else
     blocks = {side1; side2};
