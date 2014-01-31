@@ -21,6 +21,7 @@ subjfilename = fullfile(pwdname,matdirname,[subj.name '_data.mat']);
 loadfilemodded = 0;   % flag for whether we need to save this data afterward
 
 if exist(subjfilename,'file')
+  disp(['Loading datafile ', subjfilename]);
   load(subjfilename,'-mat');
 end
 
